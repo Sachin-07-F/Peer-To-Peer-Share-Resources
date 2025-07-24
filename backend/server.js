@@ -19,6 +19,29 @@ const WalletTransaction = require("./models/WalletTransaction");
 // ...existing code...
 const app = express();
 
+// --- FIXED CORS CONFIGURATION ---
+// Place this as the FIRST middleware, before express.static or any routes!
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like Postman, curl)
+    if (!origin) return callback(null, true);
+    // Allow all vercel.app subdomains and localhost:3000
+    if (
+      origin.endsWith('.vercel.app') ||
+      origin === 'http://localhost:3000'
+    ) {
+      return callback(null, true);
+    }
+    // Allow your Render frontend if you have one (add here if needed)
+    // if (origin === 'https://your-render-frontend-url.com') return callback(null, true);
+    // Otherwise, block
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
 // Serve static files from the project root
 const path = require("path");
 app.use(express.static(path.join(__dirname, "../")));
