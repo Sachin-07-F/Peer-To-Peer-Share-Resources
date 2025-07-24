@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusShare | Student Resource Sharing Platform</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --primary-color: #4a6fa5;
+      --secondary-color: #166088;
+      --accent-color: #4fc3f7;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+    }
+
+    body {
+      font-family: "Poppins", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    /* Loading animation */
+    .loader-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 5px solid var(--primary-color);
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .navbar {
+      background-color: var(--primary-color);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .navbar.scrolled {
+      background-color: rgba(74, 111, 165, 0.95);
+      backdrop-filter: blur(10px);
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      color: white;
+      font-size: 1.5rem;
+    }
+
+    .navbar-brand img {
+      height: 40px;
+      margin-right: 10px;
+      transition: transform 0.3s ease;
+    }
+
+    .navbar-brand:hover img {
+      transform: rotate(15deg);
+    }
+
+    .nav-link {
+      color: rgba(255, 255, 255, 0.85);
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: 0;
+      left: 0;
+      background-color: white;
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .nav-link:hover {
+      color: white;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+
+    .btn-primary:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+
+      100% {
+        transform: scale(20, 20);
+        opacity: 0;
+      }
+    }
+
+    .btn-outline-primary {
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+      background-color: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .hero-section {
+      background: linear-gradient(135deg,
+          var(--primary-color),
+          var(--secondary-color));
+      color: white;
+      padding: 5rem 0;
+      margin-bottom: 3rem;
+      border-radius: 0 0 20px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("https://www.transparenttextures.com/patterns/always-grey.png");
+      opacity: 0.05;
+      pointer-events: none;
+    }
+
+    .tagline {
+      font-size: 1.8rem;
+      font-weight: 300;
+      margin-bottom: 2rem;
+      animation: fadeInUp 1s ease;
+    }
+
+    .stat-card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      margin-bottom: 1.5rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+      background: linear-gradient(45deg,
+          var(--primary-color),
+          var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    }
+
+    .stat-label {
+      font-size: 1rem;
+      color: var(--dark-color);
+    }
+
+    .testimonial-card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .testimonial-text {
+      font-style: italic;
+      margin-bottom: 1rem;
+      position: relative;
+      padding-left: 1.5rem;
+    }
+
+    .testimonial-text::before {
+      content: '"';
+      position: absolute;
+      left: 0;
+      top: -0.5rem;
+      font-size: 3rem;
+      color: rgba(74, 111, 165, 0.2);
+      font-family: Georgia, serif;
+      line-height: 1;
+    }
+
+    .testimonial-author {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .how-it-works {
+      background-color: var(--light-color);
+      padding: 3rem 0;
+      border-radius: 20px;
+      margin: 3rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .how-it-works::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("https://www.transparenttextures.com/patterns/always-grey.png");
+      opacity: 0.05;
+      pointer-events: none;
+    }
+
+    .step-card {
+      text-align: center;
+      padding: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .step-card:hover {
+      transform: translateY(-10px);
+    }
+
+    .step-icon {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+      transition: transform 0.3s ease;
+    }
+
+    .step-card:hover .step-icon {
+      transform: scale(1.2);
+    }
+
+    .step-number {
+      background-color: var(--primary-color);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      font-weight: 700;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    .step-card:hover .step-number {
+      transform: scale(1.1);
+      background-color: var(--secondary-color);
+    }
+
+    .resource-card {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      margin-bottom: 1.5rem;
+      height: 100%;
+    }
+
+    .resource-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .resource-img {
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px 10px 0 0;
+      background-color: #f0f0f0;
+      transition: transform 0.5s ease;
+    }
+
+    .resource-card:hover .resource-img {
+      transform: scale(1.05);
+    }
+
+    .availability-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      z-index: 1;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .available {
+      background-color: var(--success-color);
+      color: white;
+    }
+
+    .borrowed {
+      background-color: var(--warning-color);
+      color: var(--dark-color);
+    }
+
+    .form-section {
+      background-color: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .footer {
+      background-color: var(--dark-color);
+      color: white;
+      padding: 3rem 0;
+      margin-top: 3rem;
+      position: relative;
+    }
+
+    .footer::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg,
+          var(--primary-color),
+          var(--secondary-color));
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      margin-right: 1rem;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+
+    .footer-links a::after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -2px;
+      left: 0;
+      background-color: white;
+      transition: width 0.3s ease;
+    }
+
+    .footer-links a:hover::after {
+      width: 100%;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    .social-icons a {
+      color: white;
+      font-size: 1.5rem;
+      margin-right: 1rem;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+
+
+    .fa-facebook {
+      color: #1877F2;
+    }
+    .fa-facebook:hover {
+      color: #145dbf;
+    }
+    .fa-x {
+      color: #000000;
+    }
+
+    body.dark-mode .fa-x {
+  color: #999;
+}
+    .fa-x:hover {
+      color: #1DA1F2;
+    }
+    .fa-instagram{
+      color:#E4405F;
+    }
+    .fa-instagram:hover{
+      color: #cc3354;
+
+    }
+
+    .social-icons a:hover {
+      transform: translateY(-3px);
+      color: var(--accent-color);
+    }
+
+    .notification-badge {
+      position: relative;
+    }
+
+    .badge-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: #dc3545;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: bold;
+      animation: pulse 1.5s infinite;
+    }
+
+    /* Shimmer effect */
+    .shimmer {
+      position: relative;
+      overflow: hidden;
+      background: #f0f0f0;
+    }
+
+    .shimmer::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.3) 50%,
+          rgba(255, 255, 255, 0) 100%);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        transform: translateX(-100%);
+      }
+
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
+    /* Notification Toast */
+    .notification-toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1100;
+      min-width: 250px;
+      transform: translateX(150%);
+      transition: transform 0.3s ease-out;
+      border-left: 5px solid var(--primary-color);
+    }
+
+    .notification-toast.show {
+      transform: translateX(0);
+    }
+
+    /* Notification dropdown */
+    .notification-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: 350px;
+      max-height: 400px;
+      overflow-y: auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      transform: translateY(10px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .notification-dropdown.show {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .notification-item {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+      transition: background-color 0.3s ease;
+    }
+
+    .notification-item:hover {
+      background-color: #f9f9f9;
+    }
+
+    .notification-item.unread {
+      background-color: rgba(74, 111, 165, 0.05);
+    }
+
+    /* Scroll animation */
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #main_hr_tag{
+      width:96%;
+      margin-left:2%
+    }
+
+    /* Scroll to top button */
+    .scroll-to-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      background-color: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 999;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .scroll-to-top.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .scroll-to-top:hover {
+      background-color: var(--secondary-color);
+      transform: translateY(-3px);
+    }
+
+    .text-gradient {
+      background: linear-gradient(45deg, #4a6fa5, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+
+    .typing-effect {
+      display: inline-block;
+      overflow: hidden;
+      border-right: 3px solid var(--primary-color);
+      white-space: nowrap;
+      margin: 0 auto;
+      letter-spacing: 2px;
+      animation: typing 3.5s steps(40, end),
+        blink-caret 0.75s step-end infinite;
+    }
+
+    @keyframes typing {
+      from {
+        width: 0;
+      }
+
+      to {
+        width: 100%;
+      }
+    }
+
+    @keyframes blink-caret {
+
+      from,
+      to {
+        border-color: transparent;
+      }
+
+      50% {
+        border-color: var(--primary-color);
+      }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .hero-section {
+        padding: 3rem 0;
+      }
+
+      .tagline {
+        font-size: 1.5rem;
+      }
+
+      .stat-number {
+        font-size: 2rem;
+      }
+
+      .resource-img {
+        height: 150px;
+      }
+
+      .notification-toast {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        transform: translateY(-150%);
+      }
+
+      .notification-toast.show {
+        transform: translateY(0);
+      }
+
+      .notification-dropdown {
+        width: 280px;
+        right: 10px;
+      }
+    }
+
+    /* Dark mode styles */
+    body.dark-mode {
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+
+    .dark-mode .stat-card,
+    .dark-mode .testimonial-card,
+    .dark-mode .resource-card,
+    .dark-mode .form-section {
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .dark-mode .how-it-works {
+      background-color: #2d2d2d;
+    }
+
+    .dark-mode .stat-label {
+      color: #b0b0b0;
+    }
+
+    .dark-mode .footer {
+      background-color: #0a0a0a;
+    }
+
+    .dark-mode .resource-img {
+      background-color: #2a2a2a;
+    }
+
+    .dark-mode .notification-dropdown {
+      background-color: #1e1e1e;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .dark-mode .notification-item {
+      border-bottom-color: #333;
+    }
+
+    .dark-mode .notification-item:hover {
+      background-color: #2a2a2a;
+    }
+
+    /* Animation classes */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* FAQ Accordion */
+    .accordion-button:not(.collapsed) {
+      background-color: rgba(74, 111, 165, 0.1);
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    .accordion-button:focus {
+      box-shadow: 0 0 0 0.25rem rgba(74, 111, 165, 0.25);
+    }
+
+    .dark-mode .accordion-button:not(.collapsed) {
+      background-color: rgba(74, 111, 165, 0.2);
+    }
+
+    .dark-mode .accordion {
+      --bs-accordion-bg: #1e1e1e;
+      --bs-accordion-color: #e0e0e0;
+      --bs-accordion-btn-color: #e0e0e0;
+      --bs-accordion-btn-bg: #2a2a2a;
+      --bs-accordion-active-color: white;
+      --bs-accordion-active-bg: rgba(74, 111, 165, 0.3);
+    }
+
+    /* Floating animation */
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+
+      100% {
+        transform: translateY(0px);
+      }
+    }
+
+    .floating {
+      animation: float 3s ease-in-out infinite;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Loading Screen -->
+  <div class="loader-wrapper" id="loader">
+    <div class="loader"></div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div class="notification-toast toast" role="alert" aria-live="assertive" aria-atomic="true" id="notificationToast">
+    <div class="toast-header">
+      <strong class="me-auto">Peer To Peer Share</strong>
+      <small>Just now</small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body" id="toastMessage">
+      Notification message will appear here
+    </div>
+  </div>
+
+  <!-- Scroll to top button -->
+  <div class="scroll-to-top" id="scrollToTop">
+    <i class="fas fa-arrow-up"></i>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="index.html">
+        <img
+          src="https://png.pngtree.com/png-vector/20190425/ourmid/pngtree-vector-male-student-icon-png-image_992053.jpg"
+          alt="CampusShare Logo" class="rounded-circle floating">
+        <span>Peer To Peer Share</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="resources.html">Browse Resources</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="my-resources.html">My Resources</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="lend-resource.html">Lend Item</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link notification-badge" href="#">
+              <!-- <i class="fas fa-bell"></i>
+              <span class="badge-count">3</span> -->
+            </a>
+          </li>
+          <li class="nav-item ms-2" id="loginNavItem">
+
+          </li>
+
+          <li class="nav-item ms-2">
+            <button class="btn btn-outline-light" id="darkModeToggle">
+              <i class="fas fa-moon"></i>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container text-center">
+      <h1 class="display-4 fw-bold mb-4">
+        Peer To Peer Share <span class="text-gradient">Resources</span>
+      </h1>
+      <p class="tagline typing-effect">Connect. Borrow. Learn..</p>
+      <div class="d-flex justify-content-center gap-3">
+        <a href="resources.html" class="btn btn-light btn-lg px-4">Browse Resources</a>
+        <a href="lend-resource.html" class="btn btn-outline-light btn-lg px-4">Lend an Item</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section with Shimmer Effect -->
+  <section class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="stat-card slide-up shimmer" style="animation-delay: 0.1s" id="stat1">
+          <div class="stat-number">1,250+</div>
+          <div class="stat-label">Active Students</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card slide-up shimmer" style="animation-delay: 0.2s" id="stat2">
+          <div class="stat-number">850+</div>
+          <div class="stat-label">Resources Shared</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card slide-up shimmer" style="animation-delay: 0.3s" id="stat3">
+          <div class="stat-number">94%</div>
+          <div class="stat-label">Satisfaction Rate</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="container my-5">
+    <h2 class="text-center mb-5">
+      What Students <span class="text-gradient">Say</span>
+    </h2>
+    <div class="row" id="feedbackTestimonialsRow">
+      <!-- Dynamic feedback will be injected here by JS -->
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works">
+    <div class="container">
+      <h2 class="text-center mb-5">
+        How It <span class="text-gradient">Works</span>
+      </h2>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-icon"><i class="fas fa-user-plus"></i></div>
+            <h4>Create Account</h4>
+            <p>Create an account or log in to get started.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-icon"><i class="fas fa-exchange-alt"></i></div>
+            <h4>Lend or Borrow</h4>
+            <p>List items you want to share or browse available resources.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-icon"><i class="fas fa-handshake"></i></div>
+            <h4>Connect & Share</h4>
+            <p>Arrange meetups on campus to exchange items.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Resources -->
+  <section class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Featured <span class="text-gradient">Resources</span></h2>
+      <a href="resources.html" class="btn btn-outline-primary">View All</a>
+    </div>
+    <div class="row" id="featuredResourcesRow">
+      <!-- Real products will be injected here by JS -->
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="container my-5">
+    <h2 class="text-center mb-5">
+      Frequently Asked <span class="text-gradient">Questions</span>
+    </h2>
+    <div class="accordion" id="faqAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingOne">
+          <button class="accordion-button" type="button" aria-expanded="true" aria-controls="collapseOne">
+            Is there any cost to use CampusShare?
+          </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+          data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            No, CampusShare is completely free for all students. The platform
+            is designed to facilitate sharing within our campus community
+            without any financial transactions.
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTwo">
+          <button class="accordion-button collapsed" type="button" aria-expanded="false" aria-controls="collapseTwo">
+            How do I know if a resource is available for borrowing?
+          </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+          data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            Resources listed as “Available” can be requested directly. If an item is already borrowed, it will be marked
+            as “Unavailable” until it is returned.
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingThree">
+          <button class="accordion-button collapsed" type="button" aria-expanded="false" aria-controls="collapseThree">
+            Is it safe to meet other students for exchanges?
+          </button>
+        </h2>
+        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+          data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            We recommend arranging meetups in public, well-lit areas on campus. Always communicate through the platform
+            and report any suspicious behavior to campus authorities or our support team.
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingFour">
+          <button class="accordion-button collapsed" type="button" aria-expanded="false" aria-controls="collapseFour">
+            Can I lend or borrow items for free?
+          </button>
+        </h2>
+        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour"
+          data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            Yes! Many students choose to share resources for free, but you can also set a small fee if you wish. The
+            price is always visible before you make a request.
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingFive">
+          <button class="accordion-button collapsed" type="button" aria-expanded="false" aria-controls="collapseFive">
+            How do I contact support if I have an issue?
+          </button>
+        </h2>
+        <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive"
+          data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            You can reach out to our support team via the “Help Center” link in the footer or use the contact form.
+            We’re here to help with any questions or concerns!
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="container my-5 text-center">
+    <div class="p-5 bg-light rounded-3">
+      <h2 class="mb-4">Ready to join our sharing community?</h2>
+      <p class="lead mb-4">
+        Start sharing resources with your fellow students today.
+      </p>
+      <a href="lend-resource.html" class="btn btn-primary btn-lg px-4">List Your First Item</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 mb-4 mb-md-0">
+          <h5>CampusShare</h5>
+          <p class="mt-3">
+            Connecting students to share resources and reduce waste on campus.
+          </p>
+          <div class="social-icons mt-3">
+            <a href="https://www.facebook.com/sachin.fulari.75/"><i class="fab fa-facebook"></i></a>
+            <a href="https://x.com/Sachin1673959?t=g3MwwqlgGZdJ01JJg_2vKg&s=09"><i class="fab fa-x"></i></a>
+            <a href="https://www.instagram.com/n_i_h_c_a_s_07?igsh=OW90ajE4NHY3bXVi"><i class="fab fa-instagram"></i></a>
+          </div>
+        </div>
+        <div class="col-md-2 mb-4 mb-md-0">
+          <h5>Quick Links</h5>
+          <ul class="list-unstyled mt-3">
+            <li class="mb-2">
+              <a href="index.html" class="text-white-50">Home</a>
+            </li>
+            <li class="mb-2">
+              <a href="resources.html" class="text-white-50">Browse</a>
+            </li>
+            <li class="mb-2">
+              <a href="my-resources.html" class="text-white-50">My Resources</a>
+            </li>
+            <li class="mb-2">
+              <a href="lend-resource.html" class="text-white-50">Lend Item</a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-md-3 mb-4 mb-md-0">
+          <h5>Support</h5>
+          <ul class="list-unstyled mt-3">
+            <li class="mb-2">
+              <a href="chat.html" class="text-white-50">Help Center</a>
+            </li>
+            <li class="mb-2">
+              <a href="resources.html" class="text-white-50">Emergency Need</a>
+            </li>
+            <li class="mb-2">
+              <a href="resources.html" class="text-white-50">Feedback</a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-md-3">
+          <h5>Contact Us</h5>
+
+          <p class="mt-3 text-white-50">
+            📍 Campus Share HQ, Solapur, India<br>
+            📧 sachinfulari529@gmail.com<br>
+            📞 +91-8767628478
+          </p>
+
+         
+        </div>
+      </div>
+      <hr class="my-4 bg-secondary" />
+      <!-- <div class="row">
+        <div class="col-md-6">
+          <p class="mb-0">&copy; 2025 CampusShare. All rights reserved.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <a href="#" class="text-white-50 me-3">Privacy Policy</a>
+          <a href="#" class="text-white-50">Terms of Service</a>
+        </div>
+      </div> -->
+
+
+      <div class="row">
+  <div class="col-md-6">
+    <p class="mb-0">&copy; 2025 CampusShare. All rights reserved.</p>
+  </div>
+  <div class="col-md-6 text-md-end">
+    <!-- Update these two links -->
+    <a href="#" class="text-white-50 me-3" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
+    <a href="#" class="text-white-50" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of Service</a>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Privacy Policy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content bg-light text-dark shadow rounded-3">
+      <div class="modal-header border-bottom-0">
+        <h5 class="modal-title fw-bold" id="privacyModalLabel">Privacy Policy</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <hr/ id="main_hr_tag">
+      <div class="modal-body px-4">
+        <p><strong>1. What information do we collect?</strong></p>
+        <p>We collect details like your name, email address, and interactions with the platform to enhance your experience.</p>
+
+        <p><strong>2. How is your data used?</strong></p>
+        <p>Your data is used strictly to provide services, personalize content, and improve functionality. It is never sold or shared without consent.</p>
+
+        <p><strong>3. Data Security</strong></p>
+        <p>We implement the latest security measures to protect your personal information from unauthorized access or disclosure. All passwords are encrypted using industry-standard hashing techniques like bcrypt to ensure they remain secure and unreadable even in the event of a data breach.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Terms of Service Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content bg-light text-dark shadow rounded-3">
+      <div class="modal-header border-bottom-0">
+        <h5 class="modal-title fw-bold" id="termsModalLabel">Terms of Service</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <hr/ id="main_hr_tag">
+      <div class="modal-body px-4">
+        <p><strong>1. Acceptance of Terms</strong></p>
+        <p>By using CampusShare, you agree to abide by all rules regarding item sharing, lending, and borrowing.</p>
+
+        <p><strong>2. User Responsibilities</strong></p>
+        <p>You are expected to handle shared resources responsibly. Misuse, damage, or theft will result in penalties or account suspension.</p>
+
+        <p><strong>3. Changes to Terms</strong></p>
+        <p>We may update these terms periodically. Continued use implies acceptance of the latest terms and conditions.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Loading screen
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          document.getElementById("loader").style.opacity = "0";
+          setTimeout(function () {
+            document.getElementById("loader").style.display = "none";
+          }, 500);
+        }, 1000);
+      });
+
+      // Dark mode toggle functionality
+      const darkModeToggle = document.getElementById("darkModeToggle");
+      darkModeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        const icon = darkModeToggle.querySelector("i");
+        if (document.body.classList.contains("dark-mode")) {
+          icon.classList.remove("fa-moon");
+          icon.classList.add("fa-sun");
+          localStorage.setItem("darkMode", "enabled");
+        } else {
+          icon.classList.remove("fa-sun");
+          icon.classList.add("fa-moon");
+          localStorage.setItem("darkMode", "disabled");
+        }
+      });
+
+      // Check for saved dark mode preference
+      if (localStorage.getItem("darkMode") === "enabled") {
+        document.body.classList.add("dark-mode");
+        darkModeToggle.querySelector("i").classList.remove("fa-moon");
+        darkModeToggle.querySelector("i").classList.add("fa-sun");
+      }
+
+      // Remove shimmer effect after 2 seconds
+      setTimeout(() => {
+        document.querySelectorAll(".shimmer").forEach((el) => {
+          el.classList.remove("shimmer");
+        });
+      }, 2000);
+
+      // Initialize Bootstrap tooltips
+      const tooltipTriggerList = [].slice.call(
+        document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      );
+      tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+
+      // FAQ accordion functionality (custom toggle)
+      document.querySelectorAll(".accordion-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          const targetId = button.getAttribute("aria-controls");
+          const target = document.getElementById(targetId);
+          const isOpen = target.classList.contains("show");
+
+          // Close all
+          document.querySelectorAll(".accordion-collapse").forEach((el) => {
+            el.classList.remove("show");
+          });
+          document.querySelectorAll(".accordion-button").forEach((btn) => {
+            btn.classList.add("collapsed");
+          });
+
+          // Toggle current
+          if (!isOpen) {
+            target.classList.add("show");
+            button.classList.remove("collapsed");
+          } else {
+            target.classList.remove("show");
+            button.classList.add("collapsed");
+          }
+        });
+      });
+
+      // Notification toast
+      const notificationToast = document.getElementById("notificationToast");
+      const toastMessage = document.getElementById("toastMessage");
+      const toast = new bootstrap.Toast(notificationToast);
+
+      // Show notification function
+      function showNotification(message) {
+        toastMessage.textContent = message;
+        if (notificationToast) notificationToast.classList.add("show");
+        toast.show();
+
+        // Hide after 5 seconds
+        setTimeout(() => {
+          if (notificationToast) notificationToast.classList.remove("show");
+        }, 5000);
+      }
+
+      // Request button click handler
+      function attachRequestBtnHandlers() {
+        document.querySelectorAll(".request-btn").forEach((button) => {
+          button.addEventListener("click", async function () {
+            const card = this.closest(".card");
+            const productId = card && card.querySelector(".chat-btn")?.getAttribute("data-product-id");
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user) {
+              showNotification("Please log in to request a product.");
+              window.location.href = "login.html";
+              return;
+            }
+            // Prevent duplicate requests
+            const resCheck = await fetch(`http://localhost:5000/api/myrequests/${user.id}`);
+            const myRequests = await resCheck.json();
+            if (myRequests.some(r => r.product && r.product._id === productId)) {
+              showNotification("You have already requested this product.");
+              return;
+            }
+            // Send request
+            const res = await fetch("http://localhost:5000/api/requests", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ productId, studentId: user.id })
+            });
+            const data = await res.json();
+            if (res.ok) {
+              showNotification("Request sent for " + (card.querySelector(".card-title").textContent) + ". You'll be notified when the owner responds.");
+            } else {
+              showNotification(data.error || "Failed to submit request.");
+            }
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          });
+        });
+      }
+
+      // Unavailable button click handler
+      document.querySelectorAll(".unavailable-btn").forEach((button) => {
+        button.addEventListener("click", function () {
+          const cardTitle =
+            this.closest(".card-body").querySelector(".card-title").textContent;
+          showNotification(
+            cardTitle + " is currently unavailable. You can check back later or browse similar items."
+          );
+
+          // Smooth scroll to top to show the notification
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        });
+      });
+
+      // Scroll animation for elements
+      function checkScroll() {
+        const elements = document.querySelectorAll(".animate-on-scroll");
+
+        elements.forEach((element) => {
+          const elementPosition = element.getBoundingClientRect().top;
+          const screenPosition = window.innerHeight / 1.2;
+
+          if (elementPosition < screenPosition) {
+            element.classList.add("visible");
+          }
+        });
+      }
+
+      // Add animate-on-scroll class to elements you want to animate
+      document.querySelectorAll("section").forEach((section) => {
+        section.classList.add("animate-on-scroll");
+      });
+
+      // Check scroll position on load and scroll
+      window.addEventListener("load", checkScroll);
+      window.addEventListener("scroll", checkScroll);
+
+      // Scroll to top button
+      const scrollToTopBtn = document.getElementById("scrollToTop");
+
+      window.addEventListener("scroll", function () {
+        if (window.pageYOffset > 300) {
+          if (scrollToTopBtn) scrollToTopBtn.classList.add("show");
+        } else {
+          if (scrollToTopBtn) scrollToTopBtn.classList.remove("show");
+        }
+      });
+
+      scrollToTopBtn.addEventListener("click", function () {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      });
+
+      // Navbar scroll effect
+      window.addEventListener("scroll", function () {
+        const navbar = document.getElementById("navbar");
+        if (window.scrollY > 50) {
+          if (navbar) navbar.classList.add("scrolled");
+        } else {
+          if (navbar) navbar.classList.remove("scrolled");
+        }
+      });
+
+      // Notification dropdown toggle
+      const notificationDropdown = document.querySelector(
+        ".notification-dropdown"
+      );
+      const notificationToggle = document.querySelector(
+        ".notification-badge"
+      );
+
+      notificationToggle.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (notificationDropdown) notificationDropdown.classList.toggle("show");
+
+        // Mark notifications as read when dropdown is opened
+        if (notificationDropdown && notificationDropdown.classList.contains("show")) {
+          document
+            .querySelectorAll(".notification-item.unread")
+            .forEach((item) => {
+              item.classList.remove("unread");
+            });
+          if (document.querySelector(".badge-count")) {
+            document.querySelector(".badge-count").style.display = "none";
+          }
+        }
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", function (e) {
+        if (notificationToggle && !notificationToggle.contains(e.target)) {
+          if (notificationDropdown) notificationDropdown.classList.remove("show");
+        }
+      });
+
+      // Smooth scrolling for all links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+
+          const targetId = this.getAttribute("href");
+          if (targetId === "#") return;
+
+          const targetElement = document.querySelector(targetId);
+          if (targetElement) {
+            window.scrollTo({
+              top: targetElement.offsetTop - 70,
+              behavior: "smooth",
+            });
+          }
+        });
+      });
+
+      // Add login/signup or user/logout to navbar
+      function updateNavbarAuth() {
+        const navItem = document.getElementById('loginNavItem');
+        navItem.innerHTML = '';
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user && user.name) {
+          navItem.innerHTML = `
+            <div class="dropdown">
+              <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user me-1"></i>${user.name}
+                <span style="display:inline-block; margin-left:6px; font-size:0.8em; color: #fff; vertical-align: middle;">&#9660;</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="${user.role === 'admin' ? 'admin-dashboard.html' : 'student-dashboard.html'}">Dashboard</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" id="logoutDropdownBtn">Logout</a></li>
+              </ul>
+            </div>
+          `;
+          setTimeout(() => {
+            const logoutBtn = document.getElementById('logoutDropdownBtn');
+            if (logoutBtn) {
+              logoutBtn.onclick = function (e) {
+                e.preventDefault();
+                localStorage.removeItem('user');
+                location.reload();
+              };
+            }
+          }, 100);
+        } else {
+          navItem.innerHTML = `
+            <a class="btn btn-outline-light me-2" href="login.html">Login</a>
+            <a class="btn btn-primary" href="login.html#student-signup">Sign Up</a>
+          `;
+        }
+      }
+      updateNavbarAuth();
+
+      // --- Dashboard Stats ---
+      function updateDashboardStats() {
+        // Active Students
+        fetch('http://localhost:5000/api/users/count')
+          .then(res => res.json())
+          .then(data => {
+            document.querySelector('#stat1 .stat-number').textContent = data.count || 0;
+          });
+        // Resources Shared
+        fetch('http://localhost:5000/api/requests/accepted-count')
+          .then(res => res.json())
+          .then(data => {
+            document.querySelector('#stat2 .stat-number').textContent = data.count || 0;
+          });
+        // Satisfaction Rate
+        fetch('http://localhost:5000/api/feedback')
+          .then(res => res.json())
+          .then(feedbacks => {
+            if (!feedbacks.length) {
+              document.querySelector('#stat3 .stat-number').textContent = 'N/A';
+              return;
+            }
+            // 1 star = 20%, 5 star = 100%
+            const percent = (rating) => Math.round((rating / 5) * 100);
+            const avg = feedbacks.reduce((sum, f) => sum + (f.rating || 0), 0) / feedbacks.length;
+            document.querySelector('#stat3 .stat-number').textContent = `${percent(avg)}%`;
+          });
+      }
+      updateDashboardStats();
+
+      // --- Dynamic Feedback Testimonials ---
+      function renderFeedbackTestimonials(feedbacks) {
+        const row = document.getElementById('feedbackTestimonialsRow');
+        row.innerHTML = '';
+        if (!feedbacks.length) {
+          row.innerHTML = '<div class="col-12 text-center text-muted">No feedback yet.</div>';
+          return;
+        }
+        // Sort by rating (desc), then message length (desc)
+        feedbacks.sort((a, b) => {
+          if (b.rating !== a.rating) return b.rating - a.rating;
+          return (b.message?.length || 0) - (a.message?.length || 0);
+        });
+        const top2 = feedbacks.slice(0, 2);
+        top2.forEach(fb => {
+          const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(fb.name || 'User')}&background=4a6fa5&color=fff`;
+          // Capitalize first letter of username
+          const displayName = fb.name ? fb.name.charAt(0).toUpperCase() + fb.name.slice(1) : 'Anonymous';
+          row.innerHTML += `
+            <div class="col-md-6">
+              <div class="testimonial-card fade-in">
+                <p class="testimonial-text">${fb.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                <div class="d-flex align-items-center mt-3">
+                  <img src="${avatarUrl}" alt="${fb.name}" class="rounded-circle me-3" width="50" height="50" />
+                  <div>
+                    <p class="testimonial-author mb-0">${displayName}</p>
+                    <small class="text-pink">${fb.email || ''}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+      // Fetch feedback and render testimonials
+      fetch('http://localhost:5000/api/feedback')
+        .then(res => res.json())
+        .then(feedbacks => renderFeedbackTestimonials(feedbacks));
+
+      // Fetch and display up to 3 real products in Featured Resources
+      function renderFeaturedResources(products) {
+        const row = document.getElementById('featuredResourcesRow');
+        row.innerHTML = '';
+        if (!products.length) {
+          row.innerHTML = '<div class="col-12 text-center text-muted">No resources available.</div>';
+          return;
+        }
+        const user = JSON.parse(localStorage.getItem('user'));
+        products.slice(0, 3).forEach(product => {
+          const isOwner = user && product.createdBy && product.createdBy._id === user.id;
+          const isBorrowed = product.status === 'borrowed';
+          row.innerHTML += `
+            <div class="col-md-4">
+              <div class="card resource-card">
+                <div class="position-relative">
+                  <img
+                    src="${product.image || 'assets/Not_Found.png'}"
+                    class="card-img-top resource-img featured-img-click"
+                    alt="${product.name}"
+                    style="cursor:pointer;"
+                    data-img="${product.image || 'assets/Not_Found.png'}"
+                    onerror="this.onerror=null;this.src='assets/Not_Found.png';"
+                  />
+                  <span class="availability-badge ${isBorrowed ? 'borrowed' : 'available'}">${isBorrowed ? 'Borrowed' : 'Available'}</span>
+                </div>
+                <div class="card-body">
+                  <h5 class="card-title">${product.name}</h5>
+                  <p class="card-text">${product.description && product.description.trim() !== '' ? product.description : 'No description available'}</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-pink">Shared by: ${product.createdBy?.name || 'Admin'}</small>
+                    ${isOwner ? `<button class="btn btn-sm btn-secondary" disabled title="You own this item">Your Item</button>` :
+              isBorrowed ? `<button class="btn btn-sm btn-secondary" disabled>Unavailable</button>` : `<button class="btn btn-sm btn-primary request-btn">Request</button>`}
+                    ${!isOwner ? `<button class="btn btn-sm btn-outline-secondary ms-2 chat-btn" data-owner-id="${product.createdBy?._id || ''}" data-product-id="${product._id}" data-owner-name="${product.createdBy?.name || 'Admin'}">Chat</button>` : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        attachRequestBtnHandlers();
+        attachChatBtnHandlers();
+      }
+      // Fetch products from backend
+      fetch('http://localhost:5000/api/products')
+        .then(res => res.json())
+        .then(products => renderFeaturedResources(products))
+        .catch(() => {
+          renderFeaturedResources([]);
+        });
+
+      // --- Chat System Frontend Logic ---
+      let socket = null;
+      let currentChat = { receiverId: null, receiverName: '', productId: null };
+
+      function attachChatBtnHandlers() {
+        document.querySelectorAll('.chat-btn').forEach((btn, idx) => {
+          btn.addEventListener('click', function () {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+              showNotification('Please login to use chat.');
+              return;
+            }
+            // Redirect to chat.html (no query params)
+            window.location.href = 'chat.html';
+          });
+        });
+        console.log('Chat button handlers attached:', document.querySelectorAll('.chat-btn').length);
+      }
+
+      function appendChatMessage(msg, isOther) {
+        const chatMessages = document.getElementById('chatMessages');
+        const li = document.createElement('li');
+        li.className = `mb-2 d-flex ${isOther ? 'justify-content-start' : 'justify-content-end'}`;
+        li.innerHTML = `<span class="p-2 rounded-3 ${isOther ? 'bg-light text-dark' : 'bg-primary text-white'}" style="max-width:70%; display:inline-block;">${msg.content}<br><small class="text-muted" style="font-size:0.7em;">${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small></span>`;
+        if (chatMessages) chatMessages.appendChild(li);
+        if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      var sendChatBtn = document.getElementById('sendChatBtn');
+      if (sendChatBtn) {
+        sendChatBtn.addEventListener('click', sendChatMessage);
+      }
+      var chatInput = document.getElementById('chatInput');
+      if (chatInput) {
+        chatInput.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') sendChatMessage();
+        });
+      }
+
+      function sendChatMessage() {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const input = document.getElementById('chatInput');
+        const content = input.value.trim();
+        if (!content) return;
+        if (!user || !currentChat.receiverId) return;
+        const msg = {
+          sender: user.id,
+          receiver: currentChat.receiverId,
+          content,
+          productId: currentChat.productId,
+          timestamp: new Date().toISOString()
+        };
+        // Emit via socket
+        if (socket) {
+          socket.emit('send_message', msg);
+        }
+        // Save to backend
+        fetch('http://localhost:5000/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(msg)
+        });
+        appendChatMessage(msg, false);
+        input.value = '';
+      }
+
+      // Modal for large image preview
+      const imageModalHtml = `
+      <div class="modal fade" id="featuredImageModal" tabindex="-1" aria-labelledby="featuredImageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content" style="background: transparent; box-shadow: none; border: none; position: relative;">
+            <button type="button" class="btn-close position-absolute top-0 end-0 m-3 bg-white rounded-circle" data-bs-dismiss="modal" aria-label="Close" style="z-index:10;font-size:1.5rem;"></button>
+            <div class="modal-body d-flex justify-content-center align-items-center p-0">
+              <img id="featuredImageModalImg" src="" alt="Product" style="max-width: 90vw; max-height: 80vh; border-radius: 16px; box-shadow: 0 8px 32px #4a6fa51a; background: #fff;" />
+            </div>
+          </div>
+        </div>
+      </div>`;
+      if (!document.getElementById('featuredImageModal')) {
+        document.body.insertAdjacentHTML('beforeend', imageModalHtml);
+      }
+      document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('featured-img-click')) {
+          const imgUrl = e.target.getAttribute('data-img');
+          document.getElementById('featuredImageModalImg').src = imgUrl;
+          const modal = new bootstrap.Modal(document.getElementById('featuredImageModal'));
+          modal.show();
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

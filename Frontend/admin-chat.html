@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Chat - All User Messages</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6fb; margin: 0; padding: 0; }
+    h1 { background: #222b45; color: #fff; margin: 0; padding: 24px 32px; font-size: 2.2rem; letter-spacing: 1px; }
+    #container { display: flex; max-width: 1200px; margin: 32px auto; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px #0002; min-height: 650px; overflow: hidden; }
+    #userList { width: 320px; border-right: 1px solid #e0e0e0; background: #f7f9fc; display: flex; flex-direction: column; }
+    #userList h2 { font-size: 1.1em; margin: 0 0 10px 24px; color: #555; letter-spacing: 1px; }
+    .user-search-wrapper {
+      position: relative;
+      margin: 16px 24px 8px 24px;
+      width: 90%;
+      min-width: 180px;
+      max-width: 270px;
+    }
+    #userSearch {
+      padding: 8px 36px 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 1em;
+      width: 100%;
+      box-sizing: border-box;
+      transition: border 0.2s;
+    }
+    .search-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #888;
+      font-size: 1.1em;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    #users { list-style: none; padding: 0; margin: 0; flex: 1; overflow-y: auto; }
+    .user-item { display: flex; align-items: center; gap: 12px; padding: 14px 24px; cursor: pointer; border-bottom: 1px solid #eee; transition: background 0.2s; position: relative; }
+    .user-item:last-child { border-bottom: none; }
+    .user-item.active, .user-item:hover { background: #e3f2fd; color: #1976d2; }
+    .user-avatar { width: 38px; height: 38px; border-radius: 50%; background: #cfd8dc; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #607d8b; font-size: 1.1em; }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-weight: 600; font-size: 1.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-preview { font-size: 0.93em; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-time { font-size: 0.85em; color: #bbb; margin-left: 8px; }
+    .notif-dot { display:inline-block;width:10px;height:10px;background:#e53935;border-radius:50%;margin-left:8px;vertical-align:middle; }
+    #chatArea { flex: 1; display: flex; flex-direction: column; background: #f4f6fb; }
+    #chatHeader { display: flex; align-items: center; gap: 16px; padding: 24px; border-bottom: 1px solid #e0e0e0; background: #fff; min-height: 80px; position: sticky; top: 0; z-index: 2; }
+    #chatHeader .user-avatar { width: 48px; height: 48px; font-size: 1.3em; }
+    #chatHeader .user-name { font-size: 1.2em; color: #1976d2; font-weight: 700; }
+    #chatHeader .user-status { font-size: 0.95em; color: #43a047; margin-left: 6px; }
+    #messages { flex: 1; padding: 32px 32px 24px 32px; overflow-y: auto; min-height: 400px; max-height: 60vh; scrollbar-width: thin; scrollbar-color: #bbb #f7f7f7;
+      background: url('https://www.transparenttextures.com/patterns/symphony.png') repeat, #f7f7f7; position: relative; }
+    #messages::-webkit-scrollbar { width: 8px; background: #f7f7f7; }
+    #messages::-webkit-scrollbar-thumb { background: #bbb; border-radius: 4px; }
+    .date-separator { text-align: center; color: #888; font-size: 0.98em; margin: 18px 0 10px 0; position: relative; }
+    .date-separator:before, .date-separator:after { content: ''; display: inline-block; width: 40px; height: 1px; background: #e0e0e0; vertical-align: middle; margin: 0 10px; }
+    .message { margin: 10px 0; display: flex; flex-direction: column; }
+    .me { align-items: flex-end; }
+    .other { align-items: flex-start; }
+    .bubble {
+      max-width: 70%;
+      padding: 14px 20px;
+      border-radius: 22px;
+      margin-bottom: 2px;
+      font-size: 1.07em;
+      word-break: break-word;
+      box-shadow: 0 2px 8px #0001;
+      transition: background 0.2s;
+    }
+    .me .bubble {
+      background: linear-gradient(135deg, #e3f2fd 80%, #bbdefb 100%);
+      color: #1976d2;
+      border-bottom-right-radius: 6px;
+    }
+    .other .bubble {
+      background: linear-gradient(135deg, #f1f8e9 80%, #c8e6c9 100%);
+      color: #388e3c;
+      border-bottom-left-radius: 6px;
+    }
+    .meta { font-size: 0.97em; color: #888; margin-bottom: 2px; }
+    .timestamp { font-size: 0.89em; color: #aaa; margin-left: 8px; }
+    #emptyState { color: #888; text-align: center; margin-top: 100px; font-size: 1.1em; }
+    #replyArea { background: #fff; border-top: 1px solid #e0e0e0; padding: 18px 24px; }
+    #replyForm { display: flex; gap: 10px; }
+    #replyInput { flex: 1; padding: 14px; border-radius: 18px; border: 1px solid #ccc; font-size: 1.07em; background: #f7f7f7; }
+    #replySendBtn { padding: 14px 28px; border-radius: 18px; background: #1976d2; color: #fff; border: none; font-weight: 600; cursor: pointer; font-size: 1.07em; transition: background 0.2s; display: flex; align-items: center; gap: 8px; }
+    #replySendBtn:hover { background: #1565c0; }
+    #replySendBtn i { font-size: 1.2em; }
+    /* Shimmer effect */
+    .shimmer { background: linear-gradient(90deg, #f7f7f7 25%, #e0e0e0 50%, #f7f7f7 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite linear; border-radius: 12px; height: 38px; margin: 12px 0; width: 70%; }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    @media (max-width: 900px) { #container { flex-direction: column; } #userList { width: 100%; border-right: none; border-bottom: 1px solid #e0e0e0; } #chatArea { min-height: 400px; } #messages { max-height: 40vh; padding: 16px; } }
+  </style>
+  <style>
+    .admin-chat-title {
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+      font-weight: 700;
+      font-size: 2.2rem;
+      letter-spacing: 1px;
+      color: #fff;
+      padding: 0 2px;
+      display: inline-block;
+      text-shadow: 0 2px 8px rgba(44, 62, 80, 0.18);
+    }
+    .users-section-label {
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #1976d2;
+      letter-spacing: 1px;
+      margin: 18px 0 10px 24px;
+      padding-bottom: 2px;
+      border-bottom: 1.5px solid #e3f2fd;
+      width: fit-content;
+    }
+
+
+
+
+
+
+
+
+
+     body.dark-theme {
+    background: #121212;
+    color: #f1f1f1;
+  }
+
+  body.dark-theme h1,
+  body.dark-theme .admin-chat-title {
+    background: #1f1f1f !important;
+    color: #f1f1f1;
+  }
+
+  body.dark-theme #container {
+    background: #1e1e1e;
+    box-shadow: 0 4px 24px #0006;
+  }
+
+  body.dark-theme #userList {
+    background: #2c2c2c;
+    border-color: #444;
+  }
+
+  body.dark-theme .user-item {
+    border-color: #444;
+    color: #ddd;
+  }
+
+  body.dark-theme .user-item:hover,
+  body.dark-theme .user-item.active {
+    background: #333;
+    color: #fff;
+  }
+
+  body.dark-theme #chatArea,
+  body.dark-theme #replyArea {
+    background: #1e1e1e;
+  }
+
+  body.dark-theme .bubble {
+    box-shadow: 0 2px 8px #0005;
+  }
+
+  body.dark-theme #replyInput {
+    background: #333;
+    color: #fff;
+    border-color: #555;
+  }
+
+  body.dark-theme #replySendBtn {
+    background: #3f51b5;
+  }
+
+  body.dark-theme .user-name,
+  body.dark-theme .user-preview,
+  body.dark-theme .timestamp,
+  body.dark-theme .meta {
+    color: #ccc;
+  }
+
+  body.dark-theme .date-separator:before,
+  body.dark-theme .date-separator:after {
+    background: #444;
+  }
+
+
+  body.dark-theme #divv  {
+    background: #fff;
+    color: #222b45;
+  }
+
+
+
+
+
+
+  /* Dark Mode Styles */
+body.dark-mode {
+  background-color: #121212;
+  color: #f0f0f0;
+}
+
+body.dark-mode #container {
+  background: #1e1e1e;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode #userList {
+  background: #2d3748;
+  border-color: #4a5568;
+}
+
+body.dark-mode .user-item {
+  color: #e2e8f0;
+  border-color: #4a5568;
+}
+
+body.dark-mode .user-item:hover,
+body.dark-mode .user-item.active {
+  background: #4a5568;
+  color: #fff;
+}
+
+body.dark-mode #chatArea {
+  background: #2d3748;
+}
+
+body.dark-mode #chatHeader {
+  background: #2d3748;
+  border-color: #4a5568;
+}
+
+body.dark-mode #messages {
+  background: #2d3748;
+}
+
+body.dark-mode .bubble {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .me .bubble {
+  background: linear-gradient(135deg, #3a506b 80%, #2d3748 100%) !important;
+  color: #e2e8f0;
+}
+
+body.dark-mode .other .bubble {
+  background: linear-gradient(135deg, #4a6d4a 80%, #3a5a3a 100%) !important;
+  color: #e2e8f0;
+}
+
+body.dark-mode #replyArea {
+  background: #2d3748;
+  border-color: #4a5568;
+}
+
+body.dark-mode #replyInput {
+  background: #4a5568;
+  color: #f0f0f0;
+  border-color: #4a5568;
+}
+
+body.dark-mode #replyInput:focus {
+  border-color: #4a6fa5;
+}
+
+body.dark-mode #replySendBtn {
+  background: #4a6fa5;
+}
+
+body.dark-mode #replySendBtn:hover {
+  background: #166088;
+}
+
+body.dark-mode .user-name,
+body.dark-mode .user-preview,
+body.dark-mode .timestamp,
+body.dark-mode .meta {
+  color: #e2e8f0;
+}
+
+body.dark-mode .date-separator:before,
+body.dark-mode .date-separator:after {
+  background: #4a5568;
+}
+
+body.dark-mode .admin-chat-title {
+  color: #f0f0f0;
+}
+
+body.dark-mode #divv {
+  background: #2d3748;
+  color: #f0f0f0;
+}
+
+body.dark-mode #backBtn {
+  background: #4a6fa5;
+  color: #f0f0f0;
+}
+
+
+#darkModeToggle{
+  width:40px;
+  height:40px;
+  cursor: pointer;
+  border-radius: 5px;
+  border: solid rgb(255, 255, 255) 1px;
+  background-color: #44b5e6;
+}
+
+#moon{
+  color:white;
+ 
+}
+
+  #darkModeToggle:hover {
+    background-color: white;
+  }
+
+  #darkModeToggle:hover #moon {
+    color: black;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Mobile Chat Interface (0-768px) */
+@media (max-width: 768px) {
+  /* Base Layout Adjustments */
+  body {
+    font-size: 15px;
+  }
+
+  #divv {
+    flex-direction: column;
+    padding: 12px 16px !important;
+    position: relative;
+  }
+
+  .admin-chat-title {
+    font-size: 1.5rem !important;
+    padding: 12px 0 !important;
+    width: 100%;
+    text-align: center;
+  }
+
+  #backBtn {
+    margin: 8px auto 0 auto !important;
+    width: 90%;
+    order: 2;
+  }
+
+  #darkModeToggle {
+    position: absolute !important;
+    top: 12px;
+    right: 12px;
+    margin: 0 !important;
+  }
+
+  /* Container Layout */
+  #container {
+    flex-direction: column;
+    margin: 0;
+    border-radius: 0;
+    min-height: calc(100vh - 110px);
+  }
+
+  /* User List Section */
+  #userList {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid #e0e0e0;
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+
+  .user-search-wrapper {
+    margin: 12px auto !important;
+    width: 90% !important;
+  }
+
+  .users-section-label {
+    margin: 12px 16px !important;
+  }
+
+  .user-item {
+    padding: 12px 16px !important;
+  }
+
+  .user-avatar {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 1em !important;
+  }
+
+  /* Chat Area */
+  #chatArea {
+    min-height: 60vh;
+  }
+
+  #chatHeader {
+    padding: 16px !important;
+    min-height: 72px;
+  }
+
+  #chatHeader .user-avatar {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  #messages {
+    padding: 16px !important;
+    max-height: 50vh !important;
+  }
+
+  .bubble {
+    max-width: 85% !important;
+    padding: 12px 16px !important;
+    font-size: 1em !important;
+  }
+
+  /* Reply Area */
+  #replyArea {
+    padding: 12px 16px !important;
+  }
+
+  #replyForm {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #replyInput {
+    padding: 12px !important;
+    width: 100% !important;
+  }
+
+  #replySendBtn {
+    padding: 12px !important;
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Dark Mode Adjustments */
+  body.dark-mode #userList {
+    border-color: #4a5568;
+  }
+
+  body.dark-mode #container {
+    box-shadow: none;
+  }
+
+  /* Typography Adjustments */
+  .user-name, .user-preview {
+    font-size: 0.95em !important;
+  }
+
+  .meta, .timestamp {
+    font-size: 0.85em !important;
+  }
+
+  /* Date Separator */
+  .date-separator:before,
+  .date-separator:after {
+    width: 20px !important;
+  }
+}
+
+/* Very Small Screens (0-480px) */
+@media (max-width: 480px) {
+  .admin-chat-title {
+    font-size: 1.3rem !important;
+  }
+
+  #messages {
+    max-height: 45vh !important;
+  }
+
+  .bubble {
+    max-width: 90% !important;
+    padding: 10px 14px !important;
+  }
+
+  #replyInput,
+  #replySendBtn {
+    font-size: 0.95em !important;
+  }
+}
+
+/* Landscape Orientation Adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+  #userList {
+    max-height: 30vh;
+  }
+
+  #messages {
+    max-height: 40vh !important;
+  }
+}
+
+
+
+
+
+
+
+
+
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body>
+  <div id="divv" style="display:flex;align-items:center;justify-content:space-between; background: linear-gradient(120deg, #4a6fa5 60%, #4fc3f7 100%); position:relative; padding:0 24px 0 0;">
+    <h1 class="admin-chat-title" style="background:none;padding:24px 0 24px 32px;margin:0;box-shadow:none; position:relative; z-index:1;">Admin Chat - All User Messages</h1>
+    
+
+    <button id="backBtn" style="margin-left:450px;margin-top:8px;margin-bottom:8px;padding:8px 18px;border-radius:8px;border:none;background:#fff;color:#222b45;font-weight:600;font-size:1em;cursor:pointer;transition:background 0.2s;">
+      <i class="fa fa-arrow-left"></i> Back
+    </button>
+    <!-- <li class="nav-item ms-2"> -->
+  <button class="btn btn-outline-light" id="darkModeToggle">
+    <i id="moon" class="fas fa-moon"></i>
+  </button>
+<!-- </li> -->
+  </div>
+  <div id="container">
+    <div id="userList">
+      <div class="user-search-wrapper">
+        <input id="userSearch" type="text" placeholder="Search users..." />
+        <span class="search-icon"><i class="fa fa-search"></i></span>
+      </div>
+      <div class="users-section-label">Users</div>
+      <ul id="users"><li>Loading...</li></ul>
+    </div>
+    <div id="chatArea">
+      <div id="chatHeader"><!-- Filled dynamically --></div>
+      <div id="messages"></div>
+      <!-- Removed emptyState message -->
+      <div id="replyArea" style="display:none;">
+        <form id="replyForm">
+          <input type="text" id="replyInput" placeholder="Type a message..." autocomplete="off" />
+          <button type="submit" id="replySendBtn"><i class="fa fa-paper-plane"></i> Send</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+    const admin = JSON.parse(localStorage.getItem('user'));
+    const adminId = admin && (admin.id || admin._id);
+    const usersList = document.getElementById('users');
+    const messagesDiv = document.getElementById('messages');
+    const chatHeader = document.getElementById('chatHeader');
+    // Removed emptyState usage
+    let currentUser = null;
+    const API_BASE = 'http://localhost:5000';
+    let socket = null;
+    let lastUserId = null;
+    let allUsers = [];
+    let lastMessages = {};
+    let userSearchInput = null;
+
+    async function fetchUsers() {
+      usersList.innerHTML = '<li>Loading...</li>';
+      let unreadMap = {};
+      let recentMap = {};
+      try {
+        const unreadRes = await fetch(`${API_BASE}/api/unread-messages/${adminId}`);
+        unreadMap = await unreadRes.json();
+      } catch (e) { unreadMap = {}; }
+      let users = [];
+      try {
+        const res = await fetch(`${API_BASE}/api/users`);
+        users = await res.json();
+        allUsers = users;
+      } catch (err) {
+        usersList.innerHTML = '<li style="color:red;padding:16px;">Failed to load users.</li>';
+        showAllMessagesFallback();
+        return;
+      }
+      // Get recent message activity and last message preview
+      let recentMessages = [];
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/messages`);
+        recentMessages = await res.json();
+      } catch (e) { recentMessages = []; }
+      // Map userId to most recent message timestamp and last message
+      recentMap = {};
+      lastMessages = {};
+      recentMessages.forEach(msg => {
+        const otherId = msg.senderId === adminId ? msg.receiverId : msg.senderId;
+        if (!recentMap[otherId] || new Date(msg.timestamp) > new Date(recentMap[otherId])) {
+          recentMap[otherId] = msg.timestamp;
+          lastMessages[otherId] = msg.message;
+        }
+      });
+      // Sort users: those with recent messages first (descending), then those with no messages
+      users.sort((a, b) => {
+        const aTime = recentMap[a._id] ? new Date(recentMap[a._id]).getTime() : 0;
+        const bTime = recentMap[b._id] ? new Date(recentMap[b._id]).getTime() : 0;
+        return bTime - aTime;
+      });
+      renderUserList(users, unreadMap, recentMap, lastMessages);
+    }
+
+    function renderUserList(users, unreadMap, recentMap, lastMessages) {
+      const searchVal = userSearchInput ? userSearchInput.value.toLowerCase() : '';
+      usersList.innerHTML = '';
+      users.filter(u => u.name.toLowerCase().includes(searchVal)).forEach(user => {
+        const li = document.createElement('li');
+        li.className = 'user-item';
+        li.dataset.userid = user._id;
+        li.onclick = () => selectUser(user);
+        // Avatar
+        const avatar = document.createElement('div');
+        avatar.className = 'user-avatar';
+        avatar.textContent = user.name ? user.name[0].toUpperCase() : '?';
+        li.appendChild(avatar);
+        // Info
+        const info = document.createElement('div');
+        info.className = 'user-info';
+        const name = document.createElement('div');
+        name.className = 'user-name';
+        name.textContent = user.name;
+        info.appendChild(name);
+        const preview = document.createElement('div');
+        preview.className = 'user-preview';
+        preview.textContent = lastMessages[user._id] || '';
+        info.appendChild(preview);
+        li.appendChild(info);
+        // Time
+        if (recentMap[user._id]) {
+          const time = document.createElement('span');
+          time.className = 'user-time';
+          time.textContent = new Date(recentMap[user._id]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          li.appendChild(time);
+        }
+        // Notification icon if unread
+        if (unreadMap[user._id]) {
+          const notif = document.createElement('span');
+          notif.className = 'notif-dot';
+          notif.title = `${unreadMap[user._id]} unread message(s)`;
+          li.appendChild(notif);
+        }
+        usersList.appendChild(li);
+      });
+    }
+
+    // User search
+    userSearchInput = document.getElementById('userSearch');
+    userSearchInput.addEventListener('input', () => renderUserList(allUsers, {}, {}, lastMessages));
+
+    async function showAllMessagesFallback() {
+      chatHeader.textContent = 'All Messages (Fallback)';
+      // Removed emptyState usage
+      messagesDiv.innerHTML = 'Loading all messages...';
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/messages`);
+        const messages = await res.json();
+        messagesDiv.innerHTML = '';
+        if (!Array.isArray(messages) || messages.length === 0) {
+          messagesDiv.innerHTML = '<em>Send First messages.</em>';
+          return;
+        }
+        messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        messages.forEach(msg => {
+          const isMe = msg.senderId === adminId;
+          const div = document.createElement('div');
+          div.className = 'message ' + (isMe ? 'me' : 'other');
+          div.innerHTML = `
+            <div class="meta">
+              <span>${msg.senderName} → ${msg.receiverName}</span>
+              <span class="timestamp">${new Date(msg.timestamp).toLocaleString()}</span>
+            </div>
+            <div class="bubble">${msg.message}</div>
+          `;
+          messagesDiv.appendChild(div);
+        });
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      } catch (err) {
+        messagesDiv.innerHTML = '<span style="color:red">Failed to load messages.</span>';
+      }
+    }
+
+    async function updateUserStatus(userId) {
+      const statusDiv = chatHeader.querySelector('.user-status');
+      if (!statusDiv) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/user-status/${userId}`);
+        const data = await res.json();
+        if (data.online) {
+          statusDiv.textContent = 'Online';
+          statusDiv.style.color = '#43a047';
+        } else if (data.lastSeen) {
+          const last = new Date(data.lastSeen);
+          const now = new Date();
+          const diff = Math.floor((now - last) / 60000);
+          if (diff < 1) statusDiv.textContent = 'Last seen just now';
+          else if (diff < 60) statusDiv.textContent = `Last seen ${diff} min ago`;
+          else statusDiv.textContent = `Last seen ${last.toLocaleString()}`;
+          statusDiv.style.color = '#888';
+        } else {
+          statusDiv.textContent = 'Offline';
+          statusDiv.style.color = '#888';
+        }
+      } catch (e) {
+        statusDiv.textContent = 'Unknown';
+        statusDiv.style.color = '#888';
+      }
+    }
+
+    function selectUser(user) {
+      currentUser = user;
+      lastUserId = user._id;
+      // Highlight selected user
+      document.querySelectorAll('.user-item').forEach(li => {
+        li.classList.toggle('active', li.dataset.userid === user._id);
+      });
+      // Chat header with avatar and name
+      chatHeader.innerHTML = `<div class="user-avatar">${user.name ? user.name[0].toUpperCase() : '?'}</div><div><div class="user-name">${user.name}</div><div class="user-status">...</div></div>`;
+      updateUserStatus(user._id);
+      // Removed emptyState usage
+      markMessagesSeen(user._id);
+      fetchMessages(user._id);
+      document.getElementById('replyArea').style.display = '';
+      document.getElementById('replyInput').value = '';
+      if (socket) {
+        socket.emit('join', adminId); // Only join admin's own room
+        // Do NOT emit join for user._id
+      }
+    }
+
+    async function markMessagesSeen(userId) {
+      try {
+        await fetch(`${API_BASE}/api/mark-seen/${adminId}/${userId}`, { method: 'PATCH' });
+        // Refresh user list to update notification icons
+        fetchUsers();
+      } catch (e) {}
+    }
+
+    async function fetchMessages(userId) {
+      messagesDiv.innerHTML = '<div class="shimmer"></div><div class="shimmer" style="width:40%"></div><div class="shimmer" style="width:55%"></div>';
+      try {
+        const res = await fetch(`${API_BASE}/api/admin-chat/${adminId}/${userId}`);
+        const messages = await res.json();
+        messagesDiv.innerHTML = '';
+        if (!Array.isArray(messages) || messages.length === 0) {
+          messagesDiv.innerHTML = '<em>No messages found.</em>';
+          return;
+        }
+        let lastDate = '';
+        messages.forEach(msg => {
+          const msgDate = new Date(msg.timestamp).toLocaleDateString();
+          if (msgDate !== lastDate) {
+            const sep = document.createElement('div');
+            sep.className = 'date-separator';
+            sep.textContent = msgDate === new Date().toLocaleDateString() ? 'Today' : msgDate;
+            messagesDiv.appendChild(sep);
+            lastDate = msgDate;
+          }
+          const isMe = msg.senderId === adminId;
+          const div = document.createElement('div');
+          div.className = 'message ' + (isMe ? 'me' : 'other');
+          // Tick mark logic (only for admin's own messages)
+          let ticks = '';
+          if (isMe) {
+            if (msg.seenByUser) {
+              ticks = '<span style="color:#2196f3;margin-left:6px;" title="Seen">&#10003;&#10003;</span>';
+            } else if (msg.deliveredToReceiver) {
+              ticks = '<span style="color:#888;margin-left:6px;" title="Delivered">&#10003;&#10003;</span>';
+            } else {
+              ticks = '<span style="color:#888;margin-left:6px;" title="Sent">&#10003;</span>';
+            }
+          }
+          div.innerHTML = `
+            <div class="meta">
+              <span>${isMe ? 'Me (Admin)' : currentUser.name}</span>
+              <span class="timestamp">${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ${ticks}</span>
+            </div>
+            <div class="bubble">${msg.message}</div>
+          `;
+          div.dataset.ts = String(new Date(msg.timestamp).getTime());
+          div.dataset.sender = msg.senderId;
+          messagesDiv.appendChild(div);
+        });
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      } catch (err) {
+        messagesDiv.innerHTML = '<span style="color:red">Failed to load messages.</span>';
+      }
+    }
+
+    function handleUserOnlineStatus(userId, isOnline) {
+      if (isOnline && currentUser && currentUser._id === userId) {
+        // Mark admin messages as seen when user comes online
+        fetch(`${API_BASE}/api/mark-admin-seen/${adminId}/${userId}`, { method: 'PATCH' });
+        // Optionally, refresh messages to update blue tick
+        fetchMessages(userId);
+      }
+    }
+
+    fetchUsers();
+    // Real-time chat with Socket.IO
+    window.addEventListener('DOMContentLoaded', () => {
+      socket = io(API_BASE);
+      if (adminId) socket.emit('join', adminId); // Only join admin's own room
+      // Listen for new messages
+      socket.on('chatMessage', msg => {
+        if (!currentUser || !lastUserId) return;
+        // Deduplicate: Only fetch if the message is not already present (by timestamp and sender/receiver)
+        const existing = Array.from(messagesDiv.children).some(div => {
+          return div.dataset && div.dataset.ts === String(new Date(msg.timestamp).getTime()) && div.dataset.sender === msg.senderId;
+        });
+        if (existing) return;
+        if (
+          (msg.senderId === adminId && msg.receiverId === lastUserId) ||
+          (msg.senderId === lastUserId && msg.receiverId === adminId)
+        ) {
+          fetchMessages(lastUserId);
+          // If the message is from the selected user to the admin, mark as seen immediately
+          if (msg.senderId === lastUserId && msg.receiverId === adminId) {
+            fetch(`${API_BASE}/api/mark-seen/${adminId}/${lastUserId}`, { method: 'PATCH' });
+          }
+        }
+      });
+      // Listen for user online status updates (custom event)
+      socket.on('userOnlineStatus', ({ userId, isOnline }) => {
+        handleUserOnlineStatus(userId, isOnline);
+      });
+    });
+    // Handle reply send
+    document.getElementById('replyForm').onsubmit = async function(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+      const input = document.getElementById('replyInput');
+      const text = input.value.trim();
+      if (!text) return;
+      // Send message to backend
+      try {
+        await fetch(`${API_BASE}/api/admin/send-message`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ senderId: adminId, receiverId: currentUser._id, message: text })
+        });
+        // Do NOT emit via socket here; backend will emit after saving
+        input.value = '';
+        // Do NOT call fetchMessages(currentUser._id) here to avoid duplication
+      } catch (err) {
+        alert('Failed to send message.');
+      }
+    };
+    // Back button logic
+    document.getElementById('backBtn').onclick = function() {
+      // Go back to previous page or admin dashboard
+      if (document.referrer && document.referrer !== window.location.href) {
+        window.history.back();
+      } else {
+        window.location.href = 'admin-dashboard.html';
+      }
+    };
+
+
+
+
+
+
+
+
+
+// Dark mode toggle functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const darkModeToggle = document.getElementById('darkModeToggle');
+  const darkModeIcon = darkModeToggle.querySelector('i');
+  
+  // Check for saved user preference
+  const isDarkMode = localStorage.getItem('darkMode') === 'true';
+  
+  // Apply dark mode if enabled
+  if (isDarkMode) {
+    document.body.classList.add('dark-mode');
+    darkModeIcon.classList.replace('fa-moon', 'fa-sun');
+  }
+  
+  // Toggle dark mode on button click
+  darkModeToggle.addEventListener('click', function() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    
+    // Update icon
+    if (isDark) {
+      darkModeIcon.classList.replace('fa-moon', 'fa-sun');
+      localStorage.setItem('darkMode', 'true');
+    } else {
+      darkModeIcon.classList.replace('fa-sun', 'fa-moon');
+      localStorage.setItem('darkMode', 'false');
+    }
+  });
+});
+
+
+
+  </script>
+</body>
+</html>

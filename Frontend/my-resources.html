@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Resources | CampusShare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4fc3f7;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: white;
+        }
+
+        .navbar-brand img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: white;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .resource-item {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .resource-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .availability-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .available {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .borrowed {
+            background-color: var(--warning-color);
+            color: var(--dark-color);
+        }
+
+        .pending {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .notification-badge {
+            position: relative;
+        }
+
+        .badge-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 3rem 0;
+            margin-top: 3rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .fa-facebook {
+            color: #1877F2;
+        }
+
+        .fa-facebook:hover {
+            color: #145dbf;
+        }
+
+        .fa-x {
+            color: #000000;
+            ;
+        }
+
+        .fa-x:hover {
+            color: #1DA1F2;
+        }
+
+        body.dark-mode .fa-x {
+            color: #999;
+        }
+
+        body.dark-mode .fa-x:hover{
+            color: #1DA1F2;
+        }
+
+        .fa-instagram {
+            color: #E4405F;
+        }
+
+        .fa-instagram:hover {
+            color: #cc3354;
+
+        }
+
+        #main_hr_tag {
+            width: 96%;
+            margin-left: 2%
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        .dark-mode .resource-item {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .dark-mode .footer {
+            background-color: #0a0a0a;
+        }
+
+        /* Tab styling */
+        .nav-tabs .nav-link {
+            color: var(--dark-color);
+        }
+
+        .dark-mode .nav-tabs .nav-link {
+            color: #e0e0e0;
+        }
+
+        .nav-tabs .nav-link.active {
+            font-weight: 600;
+        }
+
+        /* Animation classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Shimmer loading effect */
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg,
+                    rgba(255, 255, 255, 0) 0%,
+                    rgba(255, 255, 255, 0.3) 50%,
+                    rgba(255, 255, 255, 0) 100%);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <img src="https://png.pngtree.com/png-vector/20190425/ourmid/pngtree-vector-male-student-icon-png-image_992053.jpg"
+                    alt="CampusShare Logo" class="rounded-circle floating">
+                <span>Peer To Peer Share</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="resources.html">Browse Resources</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="my-resources.html">My Resources</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="lend-resource.html">Lend Item</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link notification-badge" href="#">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge-count">3</span>
+                        </a>
+                    </li> -->
+                    <li class="nav-item ms-2" id="loginNavItem">
+                        <!-- Login/Signup or user dropdown will be injected here by JS -->
+                    </li>
+                    <li class="nav-item ms-2">
+                        <button class="btn btn-outline-light" id="darkModeToggle">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <h1 class="mb-4">My Resources</h1>
+
+        <ul class="nav nav-tabs mb-4" id="myResourcesTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="lending-tab" data-bs-toggle="tab" data-bs-target="#lending"
+                    type="button">Items I'm Lending</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="borrowing-tab" data-bs-toggle="tab" data-bs-target="#borrowing"
+                    type="button">Items I'm Borrowing</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests"
+                    type="button">Borrow Requests <span class="badge bg-danger ms-1">2</span></button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myResourcesTabContent">
+            <!-- Items I'm Lending Tab -->
+            <div class="tab-pane fade show active" id="lending" role="tabpanel">
+                <div id="lendingContent">
+                    <!-- Loading skeleton -->
+                    <div class="card resource-item mb-3 shimmer">
+                        <div class="card-body">
+                            <div class="placeholder-glow">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="card-title placeholder col-6"></h5>
+                                    <span class="availability-badge placeholder col-2"></span>
+                                </div>
+                                <p class="card-text placeholder col-8"></p>
+                                <small class="placeholder col-4"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="lend-resource.html" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus me-2"></i>Add New Item
+                </a>
+            </div>
+
+            <!-- Items I'm Borrowing Tab -->
+            <div class="tab-pane fade" id="borrowing" role="tabpanel">
+                <div id="borrowingContent">
+                    <!-- Loading skeleton -->
+                    <div class="card resource-item mb-3 shimmer">
+                        <div class="card-body">
+                            <div class="placeholder-glow">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="card-title placeholder col-6"></h5>
+                                    <span class="availability-badge placeholder col-2"></span>
+                                </div>
+                                <p class="card-text placeholder col-8"></p>
+                                <small class="placeholder col-4"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Borrow Requests Tab -->
+            <div class="tab-pane fade" id="requests" role="tabpanel">
+                <div id="requestsContent">
+                    <!-- Loading skeleton -->
+                    <div class="card resource-item mb-3 shimmer">
+                        <div class="card-body">
+                            <div class="placeholder-glow">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="card-title placeholder col-6"></h5>
+                                    <span class="availability-badge placeholder col-2"></span>
+                                </div>
+                                <p class="card-text placeholder col-8"></p>
+                                <small class="placeholder col-4"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5>CampusShare</h5>
+                    <p class="mt-3">Connecting students to share resources and reduce waste on campus.</p>
+                    <div class="social-icons mt-3">
+                        <a href="https://www.facebook.com/sachin.fulari.75/"><i class="fab fa-facebook"></i></a>
+                        <a href="https://x.com/Sachin1673959?t=g3MwwqlgGZdJ01JJg_2vKg&s=09"><i class="fab fa-x"></i></a>
+                        <a href="https://www.instagram.com/n_i_h_c_a_s_07?igsh=OW90ajE4NHY3bXVi"><i
+                                class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-4 mb-md-0">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled mt-3">
+                        <li class="mb-2"><a href="index.html" class="text-white-50">Home</a></li>
+                        <li class="mb-2"><a href="resources.html" class="text-white-50">Browse</a></li>
+                        <li class="mb-2"><a href="my-resources.html" class="text-white-50">My Resources</a></li>
+                        <li class="mb-2"><a href="lend-resource.html" class="text-white-50">Lend Item</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Support</h5>
+                    <ul class="list-unstyled mt-3">
+                        <li class="mb-2"><a href="chat.html" class="text-white-50">Help Center</a></li>
+                        <li class="mb-2"><a href="resources.html" class="text-white-50">Emergency Need</a></li>
+                        <li class="mb-2"><a href="resources.html" class="text-white-50">Feedback</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Contact Us</h5>
+
+                    <p class="mt-3 text-white-50">
+                        📍 Campus Share HQ, Solapur, India<br>
+                        📧 sachinfulari529@gmail.com<br>
+                        📞 +91-8767628478
+                    </p>
+                </div>
+            </div>
+            <hr class="my-4 bg-secondary">
+            <!-- <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2023 CampusShare. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white-50 me-3">Privacy Policy</a>
+                    <a href="#" class="text-white-50">Terms of Service</a>
+                </div>
+            </div> -->
+
+
+
+
+
+
+
+
+
+
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 CampusShare. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <!-- Update these two links -->
+                    <a href="#" class="text-white-50 me-3" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy
+                        Policy</a>
+                    <a href="#" class="text-white-50" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of
+                        Service</a>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- Privacy Policy Modal -->
+            <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content bg-light text-dark shadow rounded-3">
+                        <div class="modal-header border-bottom-0">
+                            <h5 class="modal-title fw-bold" id="privacyModalLabel">Privacy Policy</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <hr / id="main_hr_tag">
+                        <div class="modal-body px-4">
+                            <p><strong>1. What information do we collect?</strong></p>
+                            <p>We collect details like your name, email address, and interactions with the platform to
+                                enhance your experience.</p>
+
+                            <p><strong>2. How is your data used?</strong></p>
+                            <p>Your data is used strictly to provide services, personalize content, and improve
+                                functionality. It is never sold or shared without consent.</p>
+
+                            <p><strong>3. Data Security</strong></p>
+                            <p>We implement the latest security measures to protect your personal information from
+                                unauthorized access or disclosure. All passwords are encrypted using industry-standard
+                                hashing techniques like bcrypt to ensure they remain secure and unreadable even in the
+                                event of a data breach.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terms of Service Modal -->
+            <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content bg-light text-dark shadow rounded-3">
+                        <div class="modal-header border-bottom-0">
+                            <h5 class="modal-title fw-bold" id="termsModalLabel">Terms of Service</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <hr / id="main_hr_tag">
+                        <div class="modal-body px-4">
+                            <p><strong>1. Acceptance of Terms</strong></p>
+                            <p>By using CampusShare, you agree to abide by all rules regarding item sharing, lending,
+                                and borrowing.</p>
+
+                            <p><strong>2. User Responsibilities</strong></p>
+                            <p>You are expected to handle shared resources responsibly. Misuse, damage, or theft will
+                                result in penalties or account suspension.</p>
+
+                            <p><strong>3. Changes to Terms</strong></p>
+                            <p>We may update these terms periodically. Continued use implies acceptance of the latest
+                                terms and conditions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let currentUser = null;
+        let myRequests = [];
+        let pendingRequests = [];
+
+        // Dark mode toggle functionality
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const icon = darkModeToggle.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        });
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            darkModeToggle.querySelector('i').classList.remove('fa-moon');
+            darkModeToggle.querySelector('i').classList.add('fa-sun');
+        }
+
+        // Main functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check if user is logged in
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+                alert('Please log in to view your resources.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            currentUser = user;
+            loadMyResources();
+        });
+
+        // Load all user resources
+        async function loadMyResources() {
+            try {
+                // Load user's requests (items they're borrowing)
+                await loadMyRequests();
+
+                // Load items the user is lending
+                await loadLendingItems();
+
+                // Load pending requests (if user is an admin or has items being requested)
+                await loadPendingRequests();
+
+                // Update request count badge
+                updateRequestBadge();
+
+            } catch (error) {
+                console.error('Error loading resources:', error);
+                showError('Failed to load your resources. Please try again.');
+            }
+        }
+
+        // Load user's requests (items they're borrowing)
+        async function loadMyRequests() {
+            try {
+                const response = await fetch(`http://localhost:5000/api/myrequests/${currentUser.id}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch requests');
+                }
+
+                myRequests = await response.json();
+                displayMyRequests();
+
+            } catch (error) {
+                console.error('Error loading my requests:', error);
+                showErrorInTab('borrowingContent', 'Failed to load borrowed items.');
+            }
+        }
+
+        // Display user's requests (items they're borrowing)
+        function displayMyRequests() {
+            const container = document.getElementById('borrowingContent');
+
+            if (myRequests.length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        You don't have any borrowed items at this time.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = myRequests.map(request => {
+                const product = request.product || {};
+                const statusClass = getStatusClass(request.status);
+                const statusText = getStatusText(request.status);
+
+                return `
+                    <div class="card resource-item mb-3 fade-in">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5 class="card-title mb-0">${product.name || 'Unnamed Product'}</h5>
+                                        <span class="availability-badge ${statusClass}">${statusText}</span>
+                                    </div>
+                                    <p class="card-text mb-2">Price: ₹${product.price || 0}</p>
+                                    <p class="card-text mb-2">${product.description || 'No description available'}</p>
+                                    <small class="text-pink">Requested on: ${new Date(request.createdAt).toLocaleDateString()}</small>
+                                    ${request.contactNumber ? `<br><small class="text-pink">Contact: ${request.contactNumber}</small>` : ''}
+                                </div>
+                                <div class="ms-3 d-flex flex-column">
+                                    ${request.status === 'accepted' ?
+                        `<button class="btn btn-outline-primary mb-2" onclick="contactLender('${request.contactNumber || ''}')">Contact Lender</button>
+                                         <button class="btn btn-outline-secondary">Request Extension</button>` :
+                        `<button class="btn btn-outline-secondary" disabled>${statusText}</button>`
+                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Load pending requests (for items the user is lending)
+        async function loadPendingRequests() {
+            try {
+                const response = await fetch(`http://localhost:5000/api/requests-for-my-products/${currentUser.id}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch borrow requests');
+                }
+
+                const borrowRequests = await response.json();
+                displayBorrowRequests(borrowRequests);
+                updateBorrowRequestBadge(borrowRequests);
+
+            } catch (error) {
+                console.error('Error loading borrow requests:', error);
+                showErrorInTab('requestsContent', 'Failed to load borrow requests.');
+            }
+        }
+
+        // Display borrow requests for items the user is lending
+        function displayBorrowRequests(borrowRequests) {
+            const container = document.getElementById('requestsContent');
+
+            if (borrowRequests.length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No one has requested to borrow your items yet. 
+                        <a href="lend-resource.html" class="alert-link">Add more items</a> to increase your chances of getting requests.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = borrowRequests.map(request => {
+                const product = request.product || {};
+                const student = request.student || {};
+                const statusClass = getStatusClass(request.status);
+                const statusText = getStatusText(request.status);
+
+                return `
+                    <div class="card resource-item mb-3 fade-in">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5 class="card-title mb-0">${product.name || 'Unnamed Product'}</h5>
+                                        <span class="availability-badge ${statusClass}">${statusText}</span>
+                                    </div>
+                                    <p class="card-text mb-2"><strong>Requested by:</strong> ${student.name || 'Unknown Student'}</p>
+                                    <p class="card-text mb-2"><strong>Student Email:</strong> ${student.email || 'No email provided'}</p>
+                                    <p class="card-text mb-2">Price: ₹${product.price || 0}</p>
+                                    <small class="text-pink">Requested on: ${new Date(request.createdAt).toLocaleDateString()}</small>
+                                    ${request.contactNumber ? `<br><small class="text-pink">Contact: ${request.contactNumber}</small>` : ''}
+                                </div>
+                                <div class="ms-3 d-flex flex-column">
+                                    ${request.status === 'pending' ?
+                        `<button class="btn btn-success btn-sm mb-2" onclick="acceptBorrowRequest('${request._id}')">
+                                            <i class="fas fa-check"></i> Accept
+                                        </button>
+                                         <button class="btn btn-danger btn-sm" onclick="rejectBorrowRequest('${request._id}')">
+                                            <i class="fas fa-times"></i> Reject
+                                         </button>` :
+                        `<button class="btn btn-outline-secondary btn-sm" disabled>${statusText}</button>`
+                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Load items the user is lending
+        async function loadLendingItems() {
+            try {
+                const response = await fetch(`http://localhost:5000/api/myproducts/${currentUser.id}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch lending items');
+                }
+
+                const lendingItems = await response.json();
+                displayLendingItems(lendingItems);
+
+            } catch (error) {
+                console.error('Error loading lending items:', error);
+                showErrorInTab('lendingContent', 'Failed to load your lending items.');
+            }
+        }
+
+        // Display items the user is lending
+        function displayLendingItems(lendingItems) {
+            const container = document.getElementById('lendingContent');
+
+            if (lendingItems.length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        You haven't added any items for lending yet. 
+                        <a href="lend-resource.html" class="alert-link">Add your first item</a> to start lending.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = lendingItems.map(item => {
+                return `
+                    <div class="card resource-item mb-3 fade-in">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5 class="card-title mb-0">${item.name}</h5>
+                                        <span class="availability-badge available">Available</span>
+                                    </div>
+                                    <p class="card-text mb-2">${item.description || 'No description available'}</p>
+                                    <div class="mb-2">
+                                        <small class="text-pink">
+                                            <strong>Category:</strong> ${item.category || 'N/A'}<br>
+                                            <strong>Quality:</strong> ${item.quality || 'N/A'}<br>
+                                            <strong>Price:</strong> ₹${item.price || 0}<br>
+                                            <strong>Added on:</strong> ${new Date(item.createdAt || Date.now()).toLocaleDateString()}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="ms-3 d-flex flex-column">
+                                    <button class="btn btn-outline-primary mb-2" onclick="viewItemDetails('${item._id}')">View Details</button>
+                                    <button class="btn btn-outline-secondary" onclick="editItem('${item._id}')">Edit Item</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Helper functions
+        function getStatusClass(status) {
+            switch (status) {
+                case 'pending': return 'pending';
+                case 'accepted': return 'available';
+                case 'rejected': return 'borrowed';
+                default: return 'pending';
+            }
+        }
+
+        function getStatusText(status) {
+            switch (status) {
+                case 'pending': return 'Pending';
+                case 'accepted': return 'Accepted';
+                case 'rejected': return 'Rejected';
+                default: return 'Pending';
+            }
+        }
+
+        function updateRequestBadge() {
+            const badge = document.querySelector('#requests-tab .badge');
+            if (badge) {
+                // This will be updated when we load borrow requests
+                // For now, we'll set it to 0 and update it in loadPendingRequests
+                badge.textContent = '0';
+                badge.style.display = 'none';
+            }
+        }
+
+        // Update request badge with actual borrow request count
+        function updateBorrowRequestBadge(borrowRequests) {
+            const badge = document.querySelector('#requests-tab .badge');
+            if (badge) {
+                const pendingCount = borrowRequests.filter(r => r.status === 'pending').length;
+                badge.textContent = pendingCount;
+                badge.style.display = pendingCount > 0 ? 'inline' : 'none';
+            }
+        }
+
+        function showErrorInTab(tabId, message) {
+            const container = document.getElementById(tabId);
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    ${message}
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            alert(message);
+        }
+
+        function contactLender(contactNumber) {
+            if (contactNumber) {
+                alert(`Contact the lender at: ${contactNumber}`);
+            } else {
+                alert('Contact information not available.');
+            }
+        }
+
+        // Placeholder functions for item management
+        function viewItemDetails(itemId) {
+            alert(`View details for item: ${itemId}\nThis feature will be implemented soon.`);
+        }
+
+        function editItem(itemId) {
+            alert(`Edit item: ${itemId}\nThis feature will be implemented soon.`);
+        }
+
+        // Accept borrow request
+        async function acceptBorrowRequest(requestId) {
+            if (!confirm('Are you sure you want to accept this borrow request?')) return;
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/requests/${requestId}/decision`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        status: 'accepted',
+                        contactNumber: prompt('Please provide your contact number for the borrower:') || ''
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Borrow request accepted successfully!');
+                    loadPendingRequests(); // Refresh the requests
+                } else {
+                    alert(data.error || 'Failed to accept request');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to accept request');
+            }
+        }
+
+        // Reject borrow request
+        async function rejectBorrowRequest(requestId) {
+            if (!confirm('Are you sure you want to reject this borrow request?')) return;
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/requests/${requestId}/decision`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        status: 'rejected'
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Borrow request rejected');
+                    loadPendingRequests(); // Refresh the requests
+                } else {
+                    alert(data.error || 'Failed to reject request');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to reject request');
+            }
+        }
+
+        // Tab change handler to load appropriate data
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabButtons = document.querySelectorAll('[data-bs-toggle="tab"]');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const target = this.getAttribute('data-bs-target');
+
+                    // Load appropriate data based on tab
+                    if (target === '#lending') {
+                        loadLendingItems();
+                    } else if (target === '#borrowing') {
+                        // Data already loaded
+                    } else if (target === '#requests') {
+                        // Data already loaded
+                    }
+                });
+            });
+        });
+
+        function updateNavbarAuth() {
+            const navItem = document.getElementById('loginNavItem');
+            navItem.innerHTML = '';
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user && user.name) {
+                navItem.innerHTML = `
+            <div class="dropdown">
+              <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user me-1"></i>${user.name}
+                <span style="display:inline-block; margin-left:6px; font-size:0.8em; color: #fff; vertical-align: middle;">&#9660;</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="${user.role === 'admin' ? 'admin-dashboard.html' : 'student-dashboard.html'}">Dashboard</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" id="logoutDropdownBtn">Logout</a></li>
+              </ul>
+            </div>
+          `;
+                setTimeout(() => {
+                    const logoutBtn = document.getElementById('logoutDropdownBtn');
+                    if (logoutBtn) {
+                        logoutBtn.onclick = function (e) {
+                            e.preventDefault();
+                            localStorage.removeItem('user');
+                            location.reload();
+                        };
+                    }
+                }, 100);
+            } else {
+                navItem.innerHTML = `
+            <a class="btn btn-outline-light me-2" href="login.html">Login</a>
+            <a class="btn btn-primary" href="login.html#student-signup">Sign Up</a>
+          `;
+            }
+        }
+        updateNavbarAuth();
+    </script>
+</body>
+
+</html>

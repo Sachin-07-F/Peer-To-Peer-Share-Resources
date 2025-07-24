@@ -1,0 +1,2405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | CampusShare</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body { background: #f8f9fa; font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .admin-layout { display: flex; min-height: 100vh; transition: padding-left 0.3s cubic-bezier(.39,.575,.56,1); }
+    .sidebar {
+      width: 240px;
+      background: linear-gradient(135deg, #4a6fa5 0%, #6dd5ed 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding: 2.5rem 1rem 1rem 1rem;
+      min-height: 100vh;
+      transition: transform 0.3s cubic-bezier(.39,.575,.56,1);
+      z-index: 100;
+    }
+    .sidebar.hide { transform: translateX(-110%); }
+    .sidebar .nav-link {
+      color: #fff;
+      margin-bottom: 1.2rem;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 1.08rem;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+    }
+    .sidebar .nav-link.active, .sidebar .nav-link:hover {
+      background: #166088;
+      color: #fff;
+    }
+    .sidebar .logout-btn {
+      margin-top: auto;
+      background: #dc3545;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .sidebar .logout-btn:hover { background: #b52a37; }
+    .main-content {
+      flex: 1;
+      padding: 2.5rem 2rem 2rem 2rem;
+      background: linear-gradient(120deg, #f8fafc 0%, #e3f0ff 100%);
+      min-height: 100vh;
+      transition: margin-left 0.3s cubic-bezier(.39,.575,.56,1);
+      position: relative;
+    }
+    .dashboard-header {
+      background: linear-gradient(120deg, #4a6fa5 60%, #6dd5ed 100%);
+      color: #fff;
+      border-radius: 18px;
+      padding: 2.2rem 2.5rem 2rem 2.5rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 4px 24px #4a6fa51a;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInDown 0.8s cubic-bezier(.39,.575,.56,1) both;
+    }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-40px);} to { opacity: 1; transform: none; } }
+    .dashboard-header h1 {
+      font-size: 2.3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: 1px;
+    }
+    .dashboard-header p {
+      font-size: 1.15rem;
+      font-weight: 400;
+      margin-bottom: 0;
+      color: #e3f0ff;
+    }
+    .card-anim, .card {
+      border-radius: 12px;
+      box-shadow: 0 8px 32px #4a6fa51a;
+      min-width: 0;
+      transition: transform 0.25s cubic-bezier(.39,.575,.56,1), box-shadow 0.25s;
+    }
+    .card-anim:hover, .card:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 12px 36px #4a6fa51a;
+      z-index: 2;
+    }
+    .sidebar-toggle-btn {
+      position: fixed !important;
+      top: 50%;
+      left: 18px;
+      z-index: 1200;
+      background: #fff;
+      color: #4a6fa5;
+      border: 2px solid #e3eaf7;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      box-shadow: 0 4px 16px 0 rgba(44,62,80,0.13), 0 1.5px 4px 0 rgba(74,111,165,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s, border 0.2s;
+      cursor: pointer;
+      transform: translateY(-50%);
+    }
+    .sidebar-toggle-btn.toggled {
+      box-shadow: 0 4px 16px #4a6fa533;
+      background: #e3f2fd;
+      color: #166088;
+    }
+    .sidebar-toggle-btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px #4a6fa533;
+    }
+    .card-anim { animation: fadeInUp 0.7s cubic-bezier(.39,.575,.56,1) both; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px);} to { opacity: 1; transform: none; } }
+    .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite linear; }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .skeleton-box { height: 120px; border-radius: 16px; margin-bottom: 2rem; }
+    .skeleton-table { height: 40px; border-radius: 8px; margin-bottom: 1rem; }
+    .main-title { font-size: 2.2rem; font-weight: 700; color: #4a6fa5; letter-spacing: 1px; margin-bottom: 1.5rem; }
+    .section-title { font-size: 1.3rem; font-weight: 600; color: #166088; margin-bottom: 1rem; }
+    .product-img-thumb { width: 60px; height: 40px; object-fit: cover; border-radius: 4px; }
+    .order-table th, .order-table td { vertical-align: middle; font-size: 1rem; }
+    .btn-anim { transition: transform 0.2s, box-shadow 0.2s; }
+    .btn-anim:hover { transform: scale(1.05); box-shadow: 0 2px 8px rgba(74,111,165,0.13); }
+    .table thead th { background: #f3f6fa; font-weight: 600; }
+    .badge-info { background: #e3f2fd; color: #166088; font-weight: 500; }
+    .card.text-bg-primary {
+      background: linear-gradient(90deg, #4a6fa5 60%, #6dd5ed 100%) !important;
+      color: #fff !important;
+    }
+    .card.text-bg-success {
+      background: linear-gradient(90deg, #43cea2 60%, #185a9d 100%) !important;
+      color: #fff !important;
+    }
+    .btn-primary {
+      background: linear-gradient(90deg, #4a6fa5 60%, #6dd5ed 100%) !important;
+      border: none;
+      color: #fff !important;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(90deg, #166088 60%, #4fc3f7 100%) !important;
+      color: #fff !important;
+    }
+    .btn-success {
+      background: linear-gradient(90deg, #43cea2 60%, #185a9d 100%) !important;
+      border: none;
+      color: #fff !important;
+    }
+    .btn-success:hover {
+      background: linear-gradient(90deg, #185a9d 60%, #43cea2 100%) !important;
+      color: #fff !important;
+    }
+    .btn-danger {
+      background: linear-gradient(90deg, #ff5858 60%, #f09819 100%) !important;
+      border: none;
+      color: #fff !important;
+    }
+    .btn-danger:hover {
+      background: linear-gradient(90deg, #f09819 60%, #ff5858 100%) !important;
+      color: #fff !important;
+    }
+    @media (max-width: 900px) {
+      .admin-layout { flex-direction: column; }
+      .sidebar { width: 100%; min-height: auto; position: static; transform: none !important; }
+      .main-content { padding: 1rem; }
+      .sidebar-toggle-btn { left: 10px; top: 10px; }
+    }
+
+    /* Navbar Styles */
+    .navbar {
+      background-color: #4a6fa5;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      color: white;
+    }
+    
+    .navbar-brand img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    
+    .nav-link {
+      color: rgba(255,255,255,0.85);
+      font-weight: 500;
+    }
+    
+    .nav-link:hover {
+      color: white;
+    }
+    
+    .btn-outline-light {
+      color: rgba(255,255,255,0.85);
+      border-color: rgba(255,255,255,0.85);
+    }
+    
+    .btn-outline-light:hover {
+      background-color: rgba(255,255,255,0.1);
+      color: white;
+      border-color: white;
+    }
+
+    /* Notification Styles */
+    .notification-badge {
+      position: relative;
+    }
+    
+    .badge-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: #dc3545;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+
+    .notification-dropdown {
+      min-width: 300px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .notification-header {
+      background-color: #f8f9fa;
+    }
+
+    .notification-item {
+      padding: 1rem;
+      border-bottom: 1px solid #e9ecef;
+      transition: background-color 0.2s;
+    }
+
+    .notification-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .notification-item.unread {
+      background-color: #e3f2fd;
+    }
+
+    .notification-footer {
+      background-color: #f8f9fa;
+    }
+
+    /* Floating animation for logo */
+    .floating {
+      animation: floating 3s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Reset dashboard layout and card styles (except navbar) */
+    .main-content {
+      margin-left: 7px;
+      width: calc(100vw - 240px);
+      padding: 32px 24px;
+      min-height: 100vh;
+      box-sizing: border-box;
+      transition: margin-left 0.3s cubic-bezier(.39,.575,.56,1), width 0.3s, padding 0.3s;
+      background: linear-gradient(120deg, #f8fafc 0%, #e3f0ff 100%);
+      position: relative;
+    }
+    .main-content.expanded {
+      margin-left: 0 !important;
+      width: 100vw !important;
+      position: absolute !important;
+      left: 0;
+      top: 100px;
+    }
+    .main-content.expanded .dashboard-header,
+    .main-content.expanded .section,
+    .main-content.expanded .row.mt-4 {
+      position: relative !important;
+      width: 80% !important;
+      left: 10% !important;
+    }
+    .dashboard-header, .section, .row.mt-4 {
+      width: 100%;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      border-radius: 0 !important;
+    }
+    .dashboard-header {
+      background: linear-gradient(120deg, #4a6fa5 60%, #6dd5ed 100%);
+      color: #fff;
+      border-radius: 18px;
+      padding: 2.2rem 2.5rem 2rem 2.5rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 4px 24px #4a6fa51a;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInDown 0.8s cubic-bezier(.39,.575,.56,1) both;
+    }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-40px);} to { opacity: 1; transform: none; } }
+    .dashboard-header h1 {
+      font-size: 2.3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: 1px;
+    }
+    .dashboard-header p {
+      font-size: 1.15rem;
+      font-weight: 400;
+      margin-bottom: 0;
+      color: #e3f0ff;
+    }
+    .card-anim, .card {
+      border-radius: 12px;
+      box-shadow: 0 8px 32px #4a6fa51a;
+      min-width: 0;
+      transition: transform 0.25s cubic-bezier(.39,.575,.56,1), box-shadow 0.25s;
+    }
+    .card-anim:hover, .card:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 12px 36px #4a6fa51a;
+      z-index: 2;
+    }
+    .row.mt-4 {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2.5%;
+      margin-left: 0;
+      margin-right: 0;
+      padding-left: 0;
+      padding-right: 0;
+    }
+    .row.mt-4 > div.col-md-4 {
+      flex: 1 1 48%;
+      max-width: 48%;
+      min-width: 280px;
+      margin: 0;
+    }
+    @media (max-width: 900px) {
+      .main-content { padding: 1rem; }
+      .row.mt-4 { flex-direction: column; gap: 1.5rem; }
+      .row.mt-4 > div.col-md-4 { max-width: 100%; }
+    }
+
+    /* Add Product Section Styling */
+    #section-add-product {
+      max-width: 1100px;
+      margin: 0 100px 2.5rem auto;
+      
+    }
+    #addProductForm {
+      width: 100%;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px #4a6fa51a;
+      padding: 2.2rem 2rem 1.5rem 2rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    #addProductForm label {
+      font-weight: 600;
+      color: #4a6fa5;
+      margin-bottom: 0.4rem;
+    }
+    #addProductForm .form-control, #addProductForm select {
+      border-radius: 8px;
+      border: 1.5px solid #e3eaf7;
+      font-size: 1.08em;
+      padding: 0.7rem 1rem;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-shadow: none;
+    }
+    #addProductForm .form-control:focus, #addProductForm select:focus {
+      border-color: #4a6fa5;
+      box-shadow: 0 0 0 2px #4a6fa533;
+    }
+    #addProductForm button[type="submit"] {
+      background: linear-gradient(90deg, #4a6fa5 60%, #6dd5ed 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.1em;
+      padding: 0.8rem 1.5rem;
+      margin-top: 0.5rem;
+      box-shadow: 0 2px 8px #4a6fa51a;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
+    #addProductForm button[type="submit"]:hover {
+      background: linear-gradient(90deg, #166088 60%, #4fc3f7 100%);
+      box-shadow: 0 4px 16px #4a6fa51a;
+      transform: translateY(-2px) scale(1.03);
+    }
+    #addProductMessage {
+      font-size: 1.05em;
+      margin-top: 0.7rem;
+    }
+    #section-add-product .main-title {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    /* Ensure navbar is positioned for absolute centering of toggle button */
+    .navbar {
+      position: relative;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+    }
+    .sidebar-toggle-btn {
+      position: static !important;
+      margin-right: 18px;
+      background: #fff;
+      color: #4a6fa5;
+      border: 2px solid #e3eaf7;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      box-shadow: 0 4px 16px 0 rgba(44,62,80,0.13), 0 1.5px 4px 0 rgba(74,111,165,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s, border 0.2s;
+      cursor: pointer;
+    }
+    /* Ensure navbar and toggle button are vertically aligned */
+    .navbar {
+      height: 64px;
+      min-height: 64px;
+      position: relative;
+      z-index: 1001;
+    }
+    .sidebar-toggle-btn {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 2000;
+      background: #fff;
+      color: #4a6fa5;
+      border: 2px solid #e3eaf7;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      box-shadow: 0 4px 16px 0 rgba(44,62,80,0.13), 0 1.5px 4px 0 rgba(74,111,165,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s, border 0.2s;
+      cursor: pointer;
+      /* No transform needed for fixed top/left */
+    }
+    /* RESET hamburger (sidebar toggle) icon and move to right side of admin panel */
+    .sidebar-toggle-btn {
+      position: relative;
+      top: 24px;
+      right: 24px;
+      width: 32px;
+      height: 32px;
+      font-size: 1.2rem;
+      background: #fff;
+      color: #4a6fa5;
+      border-radius: 50%;
+      border: 1.5px solid #e3eaf7;
+      box-shadow: 0 2px 8px #4a6fa51a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+     margin-left:20px;
+     margin-top:35px;
+      cursor: pointer;
+    }
+
+    /* All Products Section Styling */
+    #section-all-products {
+      margin-top: 2.5rem;
+    }
+    #section-all-products .main-title {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    #section-all-products table {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px #4a6fa51a;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    #section-all-products th, #section-all-products td {
+      padding: 1.1rem 1.2rem;
+      vertical-align: middle;
+      font-size: 1.08em;
+      border: none;
+    }
+    #section-all-products th {
+      background: #f3f6fa;
+      color: #166088;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    #section-all-products tr {
+      transition: background 0.18s;
+    }
+    #section-all-products tbody tr:hover {
+      background: #e3f2fd;
+    }
+    #section-all-products .product-img-thumb {
+      width: 80px;
+      height: 54px;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px #4a6fa51a;
+    }
+    #section-all-products .btn-danger {
+      background: linear-gradient(90deg, #ff5858 60%, #f09819 100%) !important;
+      border: none;
+      color: #fff !important;
+      border-radius: 8px;
+      font-weight: 600;
+      padding: 0.5rem 1.1rem;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    #section-all-products .btn-danger:hover {
+      background: linear-gradient(90deg, #f09819 60%, #ff5858 100%) !important;
+      box-shadow: 0 4px 16px #ff585833;
+    }
+    @media (max-width: 900px) {
+      #section-all-products table, #section-all-products thead, #section-all-products tbody, #section-all-products th, #section-all-products td, #section-all-products tr {
+        display: block;
+        width: 100%;
+      }
+      #section-all-products th, #section-all-products td {
+        padding: 0.8rem 0.7rem;
+        text-align: left;
+      }
+      #section-all-products .product-img-thumb {
+        width: 100%;
+        height: 120px;
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    /* Orders Section Styling */
+    #section-orders {
+      margin-top: 2.5rem;
+    }
+    #section-orders .main-title {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    #section-orders table {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px #4a6fa51a;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    #section-orders th, #section-orders td {
+      padding: 1.1rem 1.2rem;
+      vertical-align: middle;
+      font-size: 1.08em;
+      border: none;
+    }
+    #section-orders th {
+      background: #f3f6fa;
+      color: #166088;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    #section-orders tr {
+      transition: background 0.18s;
+    }
+    #section-orders tbody tr:hover {
+      background: #e3f2fd;
+    }
+    #section-orders .badge-info, #section-orders .badge-warning, #section-orders .badge-success {
+      border-radius: 8px;
+      font-size: 1em;
+      padding: 0.4em 1em;
+      font-weight: 600;
+    }
+    #section-orders .badge-info {
+      background: #e3f2fd;
+      color: #166088;
+    }
+    #section-orders .badge-warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+    #section-orders .badge-success {
+      background: #d4edda;
+      color: #155724;
+    }
+    #section-orders .btn-danger {
+      background: linear-gradient(90deg, #ff5858 60%, #f09819 100%) !important;
+      border: none;
+      color: #fff !important;
+      border-radius: 8px;
+      font-weight: 600;
+      padding: 0.5rem 1.1rem;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    #section-orders .btn-danger:hover {
+      background: linear-gradient(90deg, #f09819 60%, #ff5858 100%) !important;
+      box-shadow: 0 4px 16px #ff585833;
+    }
+    @media (max-width: 900px) {
+      #section-orders table, #section-orders thead, #section-orders tbody, #section-orders th, #section-orders td, #section-orders tr {
+        display: block;
+        width: 100%;
+      }
+      #section-orders th, #section-orders td {
+        padding: 0.8rem 0.7rem;
+        text-align: left;
+      }
+    }
+
+    /* Small, modern close button for product image modal */
+    .product-image-modal-close {
+      background: #4a6fa5 !important;
+      color: #fff !important;
+      border: none !important;
+      width: 28px !important;
+      height: 28px !important;
+      border-radius: 50% !important;
+      font-size: 1.1rem !important;
+      font-weight: 400 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 1px 4px #4a6fa51a !important;
+      position: absolute !important;
+      top: 10px !important;
+      right: 10px !important;
+      z-index: 10 !important;
+      cursor: pointer !important;
+      padding: 0 !important;
+      line-height: 1 !important;
+    }
+    /* Enhanced Map Modal UI */
+    #locationPickerModal .modal-content {
+      border-radius: 18px;
+      box-shadow: 0 8px 32px #4a6fa533;
+      overflow: hidden;
+      background: linear-gradient(120deg, #f8fafc 0%, #e3f0ff 100%);
+    }
+    #locationPickerMap {
+      border-radius: 12px;
+      box-shadow: 0 4px 24px #4a6fa51a;
+      transition: box-shadow 0.3s;
+      min-height: 350px;
+      min-width: 100%;
+    }
+    .leaflet-container {
+      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: box-shadow 0.3s;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px #4a6fa51a;
+      outline: none;
+    }
+    .leaflet-control-zoom {
+      border-radius: 8px;
+      box-shadow: 0 2px 8px #4a6fa51a;
+      right: 20px !important;
+      top: 20px !important;
+    }
+    .leaflet-marker-icon.custom-marker {
+      filter: drop-shadow(0 2px 8px #4a6fa533);
+      transition: transform 0.2s cubic-bezier(.39,.575,.56,1);
+    }
+    .leaflet-marker-icon.custom-marker:hover {
+      transform: scale(1.08);
+    }
+    #useSelectedLocationBtn {
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.6rem 1.5rem;
+      box-shadow: 0 2px 8px #4a6fa51a;
+      background: linear-gradient(90deg, #4a6fa5 60%, #6dd5ed 100%) !important;
+      border: none;
+      color: #fff;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
+    #useSelectedLocationBtn:hover {
+      background: linear-gradient(90deg, #166088 60%, #4fc3f7 100%) !important;
+      box-shadow: 0 4px 16px #4a6fa51a;
+      transform: translateY(-2px) scale(1.03);
+    }
+    #locationSearchSuggestions { background: #fff; border-radius: 0 0 8px 8px; box-shadow: 0 2px 8px #4a6fa51a; border: 1px solid #e3eaf7; margin-top: -1px; }
+    #locationSearchSuggestions li { cursor: pointer; padding: 0.6em 1em; transition: background 0.15s; }
+    #locationSearchSuggestions li:hover, #locationSearchSuggestions li.active { background: #e3f2fd; }
+    .search-bar-wrapper {
+      position: relative;
+    }
+    .search-bar-wrapper .search-icon-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #4a6fa5;
+      font-size: 1.2em;
+      cursor: pointer;
+      z-index: 4;
+    }
+    .search-bar-wrapper .search-icon-btn:active {
+      color: #166088;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 
+@media (min-width: 576px) {
+  .container { max-width: 540px; }
+  .col-sm { flex: 0 0 50%; max-width: 50%; }
+  .text-sm-left { text-align: left; }
+}
+
+@media (min-width: 768px) {
+  .container { max-width: 720px; }
+  .col-md { flex: 0 0 33.333%; max-width: 33.333%; }
+  .navbar-nav { flex-direction: row; }
+  .d-md-block { display: block; }
+  .d-md-none { display: none; }
+}
+
+@media (min-width: 992px) {
+  .container { max-width: 960px; }
+  .col-lg { flex: 0 0 25%; max-width: 25%; }
+  .d-lg-flex { display: flex; }
+}
+
+@media (min-width: 1200px) {
+  .container { max-width: 1140px; }
+  .col-xl { flex: 0 0 20%; max-width: 20%; }
+}
+
+@media (max-width: 767px) {
+  .d-sm-none { display: none; }
+  .d-sm-block { display: block; }
+  .navbar-collapse {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    background: white;
+    z-index: 1000;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.5rem; }
+  .col-xs { flex: 0 0 100%; max-width: 100%; }
+  .btn { display: block; width: 100%; margin-bottom: 10px; }
+}
+
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .header { padding: 0.5rem 0; }
+  .hero-section { min-height: auto; }
+}
+
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Mobile Sidebar Fix (0-768px) - Pure CSS */
+@media (max-width: 408px) {
+  /* Sidebar Container */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 280px;
+    height: 100vh;
+    z-index: 1050;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    background: linear-gradient(135deg, #4a6fa5 0%, #6dd5ed 100%);
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Show sidebar when your JS adds the 'show' class */
+  .sidebar.show {
+    transform: translateX(280px);
+  }
+
+  /* Toggle Button Styling */
+  .sidebar-toggle-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1100;
+    width: 44px;
+    height: 44px;
+    background: #4a6fa5;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  /* Button moves when sidebar is open */
+  .sidebar.show ~ .sidebar-toggle-btn {
+    left: 295px;
+    transform: rotate(180deg);
+  }
+
+  /* Main Content Adjustment */
+  .main-content {
+    width: 100%;
+    padding-top: 74px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Shift content when sidebar opens */
+  .sidebar.show ~ .main-content {
+    transform: translateX(280px);
+  }
+
+  /* Backdrop Effect */
+  .sidebar.show ~ .main-content::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+    pointer-events: none;
+  }
+
+  /* Sidebar Content Visibility */
+  .sidebar .nav,
+  .sidebar h4,
+  .sidebar .logout-btn {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .sidebar .nav {
+    flex-direction: column;
+    padding-top: 60px;
+  }
+
+  /* Small Mobile Adjustments */
+  @media (max-width: 480px) {
+    .sidebar {
+      width: 85vw;
+      left: -85vw;
+    }
+    
+    .sidebar.show {
+      transform: translateX(85vw);
+    }
+    
+    .sidebar.show ~ .main-content {
+      transform: translateX(85vw);
+    }
+    
+    .sidebar.show ~ .sidebar-toggle-btn {
+      left: calc(85vw + 15px);
+    }
+  }
+}
+
+/* Desktop Styles (768px+) */
+@media (min-width: 769px) {
+  .sidebar {
+    transform: none !important;
+    left: 0 !important;
+  }
+  
+  .main-content {
+    transform: none !important;
+  }
+  
+  .sidebar-toggle-btn {
+    display: none;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* Dark Mode Styles */
+body.dark-mode {
+  background-color: #121212;
+  color: #f0f0f0;
+}
+
+body.dark-mode .sidebar {
+  background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+}
+
+body.dark-mode .main-content {
+  background: linear-gradient(120deg, #1a202c 0%, #2d3748 100%);
+}
+
+body.dark-mode .dashboard-header {
+  background: linear-gradient(120deg, #2d3748 60%, #4a5568 100%);
+}
+
+body.dark-mode .card,
+body.dark-mode .modal-content,
+body.dark-mode .table {
+  background-color: #2d3748;
+  color: #f0f0f0;
+}
+
+body.dark-mode .card.text-bg-primary {
+  background: linear-gradient(90deg, #2d3748 60%, #4a5568 100%) !important;
+}
+
+body.dark-mode .card.text-bg-success {
+  background: linear-gradient(90deg, #1a535c 60%, #185a9d 100%) !important;
+}
+
+body.dark-mode .table thead th {
+  background-color: #4a5568;
+  color: #f0f0f0;
+}
+
+body.dark-mode .table tbody tr:hover {
+  background-color: #4a5568;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+  background-color: #2d3748;
+  border-color: #4a5568;
+  color: #f0f0f0;
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+  box-shadow: 0 0 0 2px #4a6fa533;
+}
+
+body.dark-mode .btn-primary {
+  background: linear-gradient(90deg, #2d3748 60%, #4a5568 100%) !important;
+}
+
+body.dark-mode .btn-primary:hover {
+  background: linear-gradient(90deg, #4a5568 60%, #2d3748 100%) !important;
+}
+
+body.dark-mode .btn-success {
+  background: linear-gradient(90deg, #1a535c 60%, #185a9d 100%) !important;
+}
+
+body.dark-mode .btn-success:hover {
+  background: linear-gradient(90deg, #185a9d 60%, #1a535c 100%) !important;
+}
+
+body.dark-mode .btn-danger {
+  background: linear-gradient(90deg, #6b2d2d 60%, #8b4513 100%) !important;
+}
+
+body.dark-mode .btn-danger:hover {
+  background: linear-gradient(90deg, #8b4513 60%, #6b2d2d 100%) !important;
+}
+
+body.dark-mode .alert-info {
+  background-color: #1a535c;
+  color: #f0f0f0;
+}
+
+body.dark-mode .alert-danger {
+  background-color: #6b2d2d;
+  color: #f0f0f0;
+}
+
+body.dark-mode .badge-info {
+  background-color: #2d3748;
+  color: #a0c4ff;
+}
+
+body.dark-mode .badge-warning {
+  background-color: #5e4b1a;
+  color: #ffd700;
+}
+
+body.dark-mode .badge-success {
+  background-color: #1a535c;
+  color: #90ee90;
+}
+
+body.dark-mode .text-muted {
+  color: #a0aec0 !important;
+}
+
+body.dark-mode .dropdown-menu {
+  background-color: #2d3748;
+  border-color: #4a5568;
+}
+
+body.dark-mode .dropdown-item {
+  color: #f0f0f0;
+}
+
+body.dark-mode .dropdown-item:hover {
+  background-color: #4a5568;
+}
+
+body.dark-mode .notification-dropdown {
+  background-color: #2d3748;
+  border-color: #4a5568;
+}
+
+body.dark-mode .notification-header,
+body.dark-mode .notification-footer {
+  background-color: #1a202c;
+  border-color: #4a5568;
+}
+
+body.dark-mode .notification-item {
+  border-color: #4a5568;
+}
+
+body.dark-mode .notification-item.unread {
+  background-color: rgba(74, 111, 165, 0.2);
+}
+
+body.dark-mode .product-image-modal-close {
+  background: #4a5568 !important;
+}
+
+body.dark-mode #locationPickerModal .modal-content {
+  background: linear-gradient(120deg, #1a202c 0%, #2d3748 100%);
+}
+
+body.dark-mode .leaflet-container {
+  background: #2d3748 !important;
+}
+
+body.dark-mode #locationSearchSuggestions {
+  background-color: #2d3748;
+  border-color: #4a5568;
+}
+
+body.dark-mode #locationSearchSuggestions li {
+  color: #f0f0f0;
+}
+
+body.dark-mode #locationSearchSuggestions li:hover,
+body.dark-mode #locationSearchSuggestions li.active {
+  background-color: #4a5568;
+}
+
+  </style>
+</head>
+<body>
+  <!-- Place the toggle button as the first element inside the navbar for perfect centering -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="navbar" style="min-height: 64px; position: relative;">
+    <button class="sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle Sidebar"><i class="fa fa-bars"></i></button>
+    <div class="container" style="height: 64px; display: flex; align-items: center;">
+      <a class="navbar-brand d-flex align-items-center" href="index.html">
+        <img
+          src="https://png.pngtree.com/png-vector/20190425/ourmid/pngtree-vector-male-student-icon-png-image_992053.jpg"
+          alt="CampusShare Logo"
+          class="rounded-circle floating"
+        />
+        <span>Peer To Peer Share</span>
+      </a>
+
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <!-- <li class="nav-item dropdown">
+            <a
+              class="nav-link notification-badge dropdown-toggle"
+              href="#"
+              id="notificationDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="fas fa-bell"></i>
+              <span class="badge-count">3</span>
+            </a>
+            <div
+              class="notification-dropdown dropdown-menu dropdown-menu-end"
+              aria-labelledby="notificationDropdown"
+            >
+              <div class="notification-header p-3 border-bottom">
+                <h6 class="mb-0">Notifications (3)</h6>
+              </div>
+              <div class="notification-item unread">
+                <div class="d-flex">
+                  <div class="flex-shrink-0 me-3">
+                    <i class="fas fa-book text-primary"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <p class="mb-1">
+                      New lending request received for "Calculus Textbook"
+                    </p>
+                    <small class="text-muted">2 minutes ago</small>
+                  </div>
+                </div>
+              </div>
+              <div class="notification-item unread">
+                <div class="d-flex">
+                  <div class="flex-shrink-0 me-3">
+                    <i class="fas fa-calculator text-success"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <p class="mb-1">
+                      Order approved: TI-84 Calculator borrowed by Sarah
+                    </p>
+                    <small class="text-muted">1 hour ago</small>
+                  </div>
+                </div>
+              </div>
+              <div class="notification-item">
+                <div class="d-flex">
+                  <div class="flex-shrink-0 me-3">
+                    <i class="fas fa-microscope text-warning"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <p class="mb-1">
+                      Reminder: Check pending lending requests
+                    </p>
+                    <small class="text-muted">Yesterday</small>
+                  </div>
+                </div>
+              </div>
+              <div class="notification-footer p-3 text-center border-top">
+                <a href="#" class="text-primary">View All Notifications</a>
+              </div>
+            </div>
+          </li> -->
+          <li class="nav-item ms-2"><a class="nav-link" href="admin-chat.html">Chat</a></li>
+          <li class="nav-item ms-2" id="loginNavItem">
+            <!-- User info will be injected here by JS -->
+          </li>
+          <li class="nav-item ms-2">
+            <button class="btn btn-outline-light" id="darkModeToggle">
+              <i class="fas fa-moon"></i>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="admin-layout">
+    <nav class="sidebar" id="sidebar">
+      <h4 class="mb-4"><i class="fa fa-user-shield me-2"></i>Admin Panel</h4>
+      <div class="nav flex-column" id="sidebarNav">
+        <a class="nav-link active" href="#" data-section="dashboard"><i class="fa fa-home"></i>Dashboard</a>
+        <a class="nav-link" href="#" data-section="add-product"><i class="fa fa-plus-circle"></i>Add Product</a>
+        <a class="nav-link" href="#" data-section="all-products"><i class="fa fa-box"></i>All Products</a>
+        <a class="nav-link" href="#" data-section="orders"><i class="fa fa-clipboard-list"></i>Orders</a>
+        <a class="nav-link" href="#" data-section="lending-requests"><i class="fa fa-handshake"></i>Lending Requests<span class="badge bg-warning ms-auto" id="lendingRequestsBadge" style="display:none;">0</span></a>
+        <a class="nav-link" href="#" data-section="emergency-need-requests"><i class="fa fa-exclamation-triangle"></i>Emergency Need Requests</a>
+        <a class="nav-link" href="#" data-section="returned-orders"><i class="fa fa-undo"></i>Returned Orders</a>
+      </div>
+      <button class="logout-btn mt-4 btn-anim" id="logoutBtn"><i class="fa fa-sign-out-alt me-2"></i>Logout</button>
+    </nav>
+    <div class="main-content">
+      <div class="dashboard-header">
+        <h1>Welcome, Admin!</h1>
+        <p>Manage resources, orders, and requests with ease. Use the sidebar to navigate through your admin panel.</p>
+      </div>
+      <!-- Dashboard Section -->
+      <div id="section-dashboard" class="section">
+        <h2 class="main-title mb-4"><i class="fa fa-home me-2"></i>Dashboard</h2>
+        <div class="row mt-4">
+          <div class="col-md-4">
+            <div class="card text-bg-primary mb-3 card-anim">
+              <div class="card-body">
+                <h5 class="card-title">Total Products</h5>
+                <p class="card-text" id="dashboardTotalProducts"><span class="skeleton skeleton-box w-50 d-inline-block"></span></p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-bg-success mb-3 card-anim">
+              <div class="card-body">
+                <h5 class="card-title">Total Orders</h5>
+                <p class="card-text" id="dashboardTotalOrders"><span class="skeleton skeleton-box w-50 d-inline-block"></span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Add Product Section -->
+      <div id="section-add-product" class="section" style="display:none;">
+        <h2 class="main-title mb-4"><i class="fa fa-plus-circle me-2"></i>Add New Product/Resource</h2>
+        <form id="addProductForm" class="mt-4 card-anim">
+          <div class="mb-3">
+            <label>Title</label>
+            <input type="text" class="form-control" name="name" required />
+          </div>
+          <div class="mb-3">
+            <label>Price</label>
+            <input type="number" class="form-control" name="price" required />
+          </div>
+          <div class="mb-3">
+            <label>Item Quality</label>
+            <select class="form-control" name="quality" required>
+              <option value="New">New</option>
+              <option value="Good">Good</option>
+              <option value="Fair">Fair</option>
+              <option value="Used">Used</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label>Image URL</label>
+            <input type="url" class="form-control" name="image" />
+          </div>
+          <div class="mb-3">
+            <label>Description</label>
+            <textarea class="form-control" name="description" rows="2" placeholder="Enter a brief description" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label>Category</label>
+            <select class="form-control" name="category" required>
+              <option value="">Select a category</option>
+              <option value="textbooks">Textbooks</option>
+              <option value="electronics">Electronics</option>
+              <option value="lab">Lab Equipment</option>
+              <option value="notes">Notes</option>
+              <option value="tools">Tools</option>
+              <option value="books">Books</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label>Return Deadline</label>
+            <input type="date" class="form-control" name="returnDeadline" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-anim"><i class="fa fa-plus me-2"></i><span class="btn-text">Add Product</span><span class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span></button>
+        </form>
+        <div id="addProductMessage" class="mt-2"></div>
+      </div>
+      <!-- All Products Section -->
+      <div id="section-all-products" class="section" style="display:none;">
+        <h2 class="main-title mb-4"><i class="fa fa-box me-2"></i>All Products</h2>
+        <table class="table table-bordered mt-4 bg-white rounded-3 shadow-sm">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Title</th>
+              <th>Price</th>
+              <th>Quality</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="allProductsTableBody">
+            <tr><td colspan="5"><div class="skeleton skeleton-table w-100"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Orders Section -->
+      <div id="section-orders" class="section" style="display:none;">
+        <h2 class="main-title mb-4"><i class="fa fa-clipboard-list me-2"></i>Orders (Requests)</h2>
+        <table class="table table-bordered order-table mt-4 bg-white rounded-3 shadow-sm">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Student</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody">
+            <tr><td colspan="4"><div class="skeleton skeleton-table w-100"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Lending Requests Section -->
+      <div id="section-lending-requests" class="section" style="display:none;">
+        <h2 class="main-title mb-4"><i class="fa fa-handshake me-2"></i>Lending Requests</h2>
+        <div class="row" id="lendingRequestsContainer">
+          <div class="col-12">
+            <div class="skeleton skeleton-box w-100"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Emergency Need Requests Section -->
+      <div id="section-emergency-need-requests" class="section" style="display:none;">
+        <h2 class="main-title mb-4"><i class="fa fa-exclamation-triangle me-2 text-danger"></i>Emergency Need Requests</h2>
+        <div class="table-responsive">
+          <table class="table table-bordered mt-4 bg-white rounded-3 shadow-sm">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Product Name</th>
+                <th>Describe your emergency need</th>
+                <th>Expected Date Needed</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="emergencyNeedRequestsTableBody">
+              <tr><td colspan="6"><div class="skeleton skeleton-table w-100"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Returned Orders Section -->
+      <div id="section-returned-orders" class="section" style="display:none;">
+        <h2 class="main-title mb-4"><i class="fa fa-undo text-success me-2"></i>Returned Orders</h2>
+        <div class="row" id="returnedOrdersRow">
+          <!-- Returned orders will be injected by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Contact Number Modal -->
+  <div class="modal fade" id="contactNumberModal" tabindex="-1" aria-labelledby="contactNumberModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="contactNumberModalLabel">Enter Delivery Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-2">
+            <label for="contactNumberInput" class="form-label">Mobile Number</label>
+          <input type="text" class="form-control" id="contactNumberInput" placeholder="Contact Number" />
+          </div>
+          <div class="mb-2">
+            <label for="contactEmailInput" class="form-label">Email</label>
+            <input type="email" class="form-control" id="contactEmailInput" placeholder="Email" />
+          </div>
+          <div class="mb-2">
+            <label for="deliveryLocationInput" class="form-label">Location</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="deliveryLocationInput" placeholder="Location (e.g., Library, Canteen)" />
+              <button class="btn btn-outline-secondary" type="button" id="getGeoLocationBtn" title="Use my location"><i class="fa fa-map-marker-alt"></i></button>
+            </div>
+          </div>
+          <div class="mb-2">
+            <label for="deliveryDateInput" class="form-label">Delivery Date</label>
+            <input type="text" class="form-control" id="deliveryDateInput" placeholder="Select date" readonly style="background:#fff;cursor:pointer;" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="confirmContactBtn">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Custom Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteProductModalLabel">Confirm Delete</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this product?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteProductBtn">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Product Image Modal for All Products -->
+  <div class="modal fade" id="productImageModal" tabindex="-1" aria-labelledby="productImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background: transparent; box-shadow: none; border: none; position: relative;">
+        <button type="button" class="product-image-modal-close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+        <div class="modal-body d-flex justify-content-center align-items-center p-0">
+          <img id="productImageModalImg" src="" alt="Product" style="max-width: 90vw; max-height: 80vh; border-radius: 16px; box-shadow: 0 8px 32px #4a6fa51a; background: #fff;" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Location Picker Modal -->
+  <div class="modal fade" id="locationPickerModal" tabindex="-1" aria-labelledby="locationPickerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="locationPickerModalLabel">Select Location on Map</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" style="height:460px;">
+          <div class="mb-2 search-bar-wrapper">
+            <input type="text" id="locationSearchInput" class="form-control" placeholder="Search for a place, building, or area..." autocomplete="off" style="z-index:2;">
+            <button type="button" class="search-icon-btn" id="locationSearchBtn" title="Search"><i class="fa fa-search"></i></button>
+            <ul id="locationSearchSuggestions" class="list-group position-absolute w-100" style="top:38px;left:0;z-index:3;max-height:180px;overflow-y:auto;display:none;"></ul>
+          </div>
+          <div id="locationPickerMap" style="height:380px;width:100%;border-radius:8px;"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="useSelectedLocationBtn">Use this location</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Confirmation Modal for Emergency Need -->
+  <div class="modal fade" id="emergencyNeedConfirmModal" tabindex="-1" aria-labelledby="emergencyNeedConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="emergencyNeedConfirmModalLabel">Confirm Action</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <i class="fa fa-exclamation-circle fa-3x text-warning mb-3"></i>
+          <p id="emergencyNeedConfirmText" class="fs-5"></p>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" id="emergencyNeedConfirmBtn">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+    <div id="hotToast" class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true" style="display:none;">
+      <div class="d-flex">
+        <div class="toast-body" id="hotToastMsg">Toast message</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" onclick="document.getElementById('hotToast').style.display='none';"></button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Global function for showing the image modal (works for all product images)
+    window.showProductImageModal = function(imgUrl) {
+      const modalImg = document.getElementById('productImageModalImg');
+      modalImg.src = imgUrl;
+      const modal = new bootstrap.Modal(document.getElementById('productImageModal'));
+      modal.show();
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+    let sidebarVisible = true;
+    const mainContent = document.querySelector('.main-content');
+    sidebarToggleBtn.onclick = function() {
+      sidebarVisible = !sidebarVisible;
+      sidebar.classList.toggle('hide', !sidebarVisible);
+      sidebarToggleBtn.classList.toggle('toggled', !sidebarVisible);
+      if (!sidebarVisible) {
+        mainContent.classList.add('expanded');
+      } else {
+        mainContent.classList.remove('expanded');
+      }
+    };
+
+    // Check admin login
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || user.role !== 'admin') {
+      window.location.href = 'login.html';
+    }
+
+    // Hot toast function
+    function showHotToast(msg, type='primary') {
+      const toast = document.getElementById('hotToast');
+      const toastMsg = document.getElementById('hotToastMsg');
+      toastMsg.textContent = msg;
+      toast.className = `toast align-items-center text-white bg-${type} border-0 show`;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    // Sidebar navigation
+    const navLinks = document.querySelectorAll('.sidebar .nav-link');
+    const sections = document.querySelectorAll('.main-content .section');
+    navLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        navLinks.forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+        const sectionId = 'section-' + this.getAttribute('data-section');
+        sections.forEach(sec => sec.style.display = 'none');
+        document.getElementById(sectionId).style.display = '';
+        if (sectionId === 'section-all-products') loadAllProducts();
+        if (sectionId === 'section-orders') loadOrders();
+        if (sectionId === 'section-lending-requests') loadLendingRequests();
+        if (sectionId === 'section-dashboard') loadDashboardStats();
+        if (sectionId === 'section-emergency-need-requests') loadEmergencyNeedRequests();
+        if (sectionId === 'section-returned-orders') loadReturnedOrders();
+      });
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').onclick = function() {
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    };
+
+    // Button spinner helper
+    function setButtonLoading(btn, loading) {
+      const spinner = btn.querySelector('.spinner-border');
+      const text = btn.querySelector('.btn-text');
+      if (loading) {
+        spinner.classList.remove('d-none');
+        text.style.opacity = 0.5;
+        btn.disabled = true;
+      } else {
+        spinner.classList.add('d-none');
+        text.style.opacity = 1;
+        btn.disabled = false;
+      }
+    }
+
+    // Add Product
+    document.getElementById('addProductForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const btn = this.querySelector('button[type="submit"]');
+      setButtonLoading(btn, true);
+      const name = this.name.value;
+      const price = this.price.value;
+      const quality = this.quality.value;
+      const image = this.image.value;
+      const description = this.description.value;
+      const category = this.category.value;
+      const returnDeadline = this.returnDeadline.value;
+      const adminId = user.id;
+      const res = await fetch('http://localhost:5000/api/products', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name, price, quality, image, description, category, returnDeadline, adminId })
+      });
+      const data = await res.json();
+      setButtonLoading(btn, false);
+      showHotToast(data.message || data.error, data.message ? 'success' : 'danger');
+      document.getElementById('addProductMessage').textContent = data.message || data.error;
+      if (data.message) {
+        this.reset();
+        // Switch to All Products view
+        document.querySelector('.sidebar .nav-link[data-section="all-products"]').click();
+      }
+    };
+
+    // Load All Products
+    async function loadAllProducts() {
+      const res = await fetch('http://localhost:5000/api/products');
+      const products = await res.json();
+      const tbody = document.getElementById('allProductsTableBody');
+      if (!products.length) {
+        tbody.innerHTML = '<tr><td colspan="5">No products found.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      products.forEach((product, idx) => {
+        setTimeout(() => {
+          tbody.innerHTML += `
+            <tr class="card-anim">
+              <td><img src="${product.image || 'assets/Not_Found.png'}" onerror="this.onerror=null;this.src='assets/Not_Found.png';" class="product-img-thumb" style="cursor:pointer;" onclick="showProductImageModal('${product.image || 'assets/Not_Found.png'}')" /></td>
+              <td style="font-weight:600;color:#4a6fa5;">${product.name}</td>
+              <td>${product.price ? '₹' + product.price : 'N/A'}</td>
+              <td>${product.quality || 'N/A'}</td>
+              <td><button class="btn btn-danger btn-sm btn-anim" onclick="deleteProduct('${product._id}')"><i class="fa fa-trash"></i> Delete</button></td>
+            </tr>
+          `;
+        }, idx * 60);
+      });
+    }
+
+    // Delete Product
+    let productToDelete = null;
+    window.deleteProduct = function(id) {
+      productToDelete = id;
+      const modal = new bootstrap.Modal(document.getElementById('deleteProductModal'));
+      modal.show();
+    };
+    document.getElementById('confirmDeleteProductBtn').onclick = async function() {
+      if (!productToDelete) return;
+      await fetch(`http://localhost:5000/api/products/${productToDelete}`, { method: 'DELETE' });
+      loadAllProducts();
+      loadDashboardStats();
+      showHotToast('Product deleted', 'success');
+      productToDelete = null;
+      const modal = bootstrap.Modal.getInstance(document.getElementById('deleteProductModal'));
+      if (modal) modal.hide();
+    };
+
+    // Load Orders (Requests)
+    async function loadOrders() {
+      const res = await fetch('http://localhost:5000/api/requests');
+      const orders = await res.json();
+      const tbody = document.getElementById('ordersTableBody');
+      if (!orders.length) {
+        tbody.innerHTML = '<tr><td colspan="4">No orders yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      orders.forEach((order, idx) => {
+        setTimeout(() => {
+          tbody.innerHTML += `
+            <tr class="card-anim">
+              <td>
+                <strong style="color:#4a6fa5;">${order.product?.name || ''}</strong><br/>
+                <img src="${order.product?.image || 'assets/Not_Found.png'}" onerror="this.onerror=null;this.src='assets/Not_Found.png';" alt="" style="width:60px;height:40px;object-fit:cover;border-radius:6px;cursor:pointer;" onclick="showProductImageModal('${order.product?.image || 'assets/Not_Found.png'}')" />
+              </td>
+              <td>${order.student?.name || ''} <br/> <small>${order.student?.email || ''}</small></td>
+              <td>${order.status}
+                ${order.contactNumber ? `<br/><span class='badge badge-info mt-2'>Contact: ${order.contactNumber}</span>` : ''}
+              </td>
+              <td>
+                ${order.status === 'pending' ? `
+                  <button class="btn btn-success btn-sm btn-anim" onclick="updateOrderStatus('${order._id}','accepted')"><i class="fa fa-check"></i> Accept</button>
+                  <button class="btn btn-danger btn-sm btn-anim" onclick="updateOrderStatus('${order._id}','rejected')"><i class="fa fa-times"></i> Reject</button>
+                ` : order.status}
+              </td>
+            </tr>
+          `;
+        }, idx * 60);
+      });
+    }
+
+    // Update order status
+    let pendingAcceptOrderId = null;
+    window.updateOrderStatus = async function(id, status) {
+      if (status === 'accepted') {
+        pendingAcceptOrderId = id;
+        document.getElementById('contactNumberInput').value = '';
+        const modal = new bootstrap.Modal(document.getElementById('contactNumberModal'));
+        modal.show();
+        return;
+      }
+      await fetch(`http://localhost:5000/api/requests/${id}/decision`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ status })
+      });
+      loadOrders();
+      showHotToast('Order updated', 'success');
+    };
+
+    document.getElementById('confirmContactBtn').onclick = async function() {
+      const contactNumber = document.getElementById('contactNumberInput').value.trim();
+      const contactEmail = document.getElementById('contactEmailInput').value.trim();
+      const deliveryLocation = document.getElementById('deliveryLocationInput').value.trim();
+      const deliveryDate = document.getElementById('deliveryDateInput').value;
+      if (!contactNumber || !contactEmail || !deliveryLocation || !deliveryDate) {
+        showHotToast('All fields are required to accept the order.', 'danger');
+        return;
+      }
+      const modalEl = document.getElementById('contactNumberModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
+      await fetch(`http://localhost:5000/api/requests/${pendingAcceptOrderId}/decision`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ status: 'accepted', contactNumber, contactEmail, deliveryLocation, deliveryDate })
+      });
+      loadOrders();
+      showHotToast('Order accepted and delivery details sent', 'success');
+    };
+
+    // Geolocation button for location input (fetch city/village name)
+    document.getElementById('getGeoLocationBtn').onclick = function() {
+      // Open the map modal for location selection
+      const modal = new bootstrap.Modal(document.getElementById('locationPickerModal'));
+      modal.show();
+      setTimeout(() => {
+        // Always re-initialize the map and marker
+        if (locationPickerMap) {
+          locationPickerMap.remove();
+          locationPickerMap = null;
+        }
+        locationMarker = null;
+        selectedLatLng = null;
+        selectedLocationName = '';
+        document.getElementById('locationSearchInput').value = '';
+        document.getElementById('locationSearchSuggestions').innerHTML = '';
+        document.getElementById('locationSearchSuggestions').style.display = 'none';
+        initLocationPickerMap();
+        // Restore last selected location if available
+        const lastLoc = localStorage.getItem('lastSelectedLocation');
+        if (lastLoc) {
+          try {
+            const { lat, lon, name } = JSON.parse(lastLoc);
+            if (lat && lon && name) {
+              locationPickerMap.setView([lat, lon], 17, { animate: true, duration: 1.1 });
+              selectedLatLng = { lat, lng: lon };
+              locationMarker = L.marker(selectedLatLng, { icon: customMarkerIcon, riseOnHover: true }).addTo(locationPickerMap);
+              selectedLocationName = name;
+              document.getElementById('locationSearchInput').value = name;
+              setTimeout(() => {
+                locationMarker.bindPopup(name).openPopup();
+              }, 1200);
+            }
+          } catch (e) {}
+        }
+      }, 300);
+    };
+
+    // Location Picker Map logic
+    let locationPickerMap, locationMarker, selectedLatLng, selectedLocationName;
+    const customMarkerIcon = L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+      iconSize: [38, 38],
+      iconAnchor: [19, 38],
+      popupAnchor: [0, -38],
+      className: 'custom-marker'
+    });
+    function initLocationPickerMap() {
+      if (!locationPickerMap) {
+        locationPickerMap = L.map('locationPickerMap', {
+          zoomControl: false,
+          zoomAnimation: true,
+          fadeAnimation: true,
+          markerZoomAnimation: true,
+        }).setView([20.5937, 78.9629], 5); // Center on India
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap'
+        }).addTo(locationPickerMap);
+        // Add smooth zoom control to top right
+        L.control.zoom({ position: 'topright' }).addTo(locationPickerMap);
+        locationPickerMap.on('click', async function(e) {
+          if (locationMarker) locationPickerMap.removeLayer(locationMarker);
+          selectedLatLng = e.latlng;
+          locationMarker = L.marker(selectedLatLng, { icon: customMarkerIcon, riseOnHover: true }).addTo(locationPickerMap);
+          // Reverse geocode
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${selectedLatLng.lat}&lon=${selectedLatLng.lng}`);
+            const data = await res.json();
+            selectedLocationName =
+              data.address.building ||
+              data.address.temple ||
+              data.address.college ||
+              data.address.school ||
+              data.address.university ||
+              data.address.community_centre ||
+              data.address.townhall ||
+              data.address.hospital ||
+              data.address.library ||
+              data.address.mall ||
+              data.address.cinema ||
+              data.address.bus_station ||
+              data.address.road ||
+              data.address.neighbourhood ||
+              data.address.suburb ||
+              data.address.quarter ||
+              data.address.nagar ||
+              data.address.area ||
+              data.address.village ||
+              data.address.town ||
+              data.address.city ||
+              data.address.hamlet ||
+              data.display_name ||
+              `Lat: ${selectedLatLng.lat.toFixed(5)}, Lng: ${selectedLatLng.lng.toFixed(5)}`;
+          } catch (e) {
+            selectedLocationName = `Lat: ${selectedLatLng.lat.toFixed(5)}, Lng: ${selectedLatLng.lng.toFixed(5)}`;
+          }
+        });
+      } else {
+        locationPickerMap.invalidateSize();
+      }
+      // Center on user's current location if available
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          locationPickerMap.flyTo([position.coords.latitude, position.coords.longitude], 16, { animate: true, duration: 1.2, easeLinearity: 0.25 });
+        });
+      }
+    }
+
+    document.getElementById('useSelectedLocationBtn').onclick = function() {
+      if (selectedLocationName) {
+        document.getElementById('deliveryLocationInput').value = selectedLocationName;
+        showHotToast('Location selected!', 'success');
+        const modal = bootstrap.Modal.getInstance(document.getElementById('locationPickerModal'));
+        if (modal) modal.hide();
+      } else {
+        showHotToast('Please select a location on the map.', 'danger');
+      }
+    };
+
+    // Dashboard stats
+    async function loadDashboardStats() {
+      // Total products
+      const res1 = await fetch('http://localhost:5000/api/products');
+      const products = await res1.json();
+      document.getElementById('dashboardTotalProducts').textContent = products.length;
+      // Total orders
+      const res2 = await fetch('http://localhost:5000/api/requests');
+      const orders = await res2.json();
+      document.getElementById('dashboardTotalOrders').textContent = orders.length;
+    }
+
+    // Load Lending Requests
+    async function loadLendingRequests() {
+      try {
+        const res = await fetch('http://localhost:5000/api/lending-requests');
+        const lendingRequests = await res.json();
+        const container = document.getElementById('lendingRequestsContainer');
+        
+        if (!lendingRequests.length) {
+          container.innerHTML = '<div class="col-12"><div class="alert alert-info">No lending requests found.</div></div>';
+          return;
+        }
+
+        container.innerHTML = '';
+        lendingRequests.forEach((request, idx) => {
+          setTimeout(() => {
+            const card = document.createElement('div');
+            card.className = 'col-md-6 col-lg-4 mb-4 card-anim';
+            card.innerHTML = `
+              <div class="card h-100 shadow-sm">
+                <img src="${request.image}" class="card-img-top" alt="${request.name}" style="height: 200px; object-fit: cover; cursor:pointer;" onclick="showProductImageModal('${request.image.replace(/'/g, '\'')}')">
+                <div class="card-body">
+                  <h5 class="card-title text-primary">${request.name}</h5>
+                  <p class="card-text">${request.description}</p>
+                  <div class="mb-2">
+                    <small class="text-muted">
+                      <strong>Category:</strong> ${request.category}<br>
+                      <strong>Condition:</strong> ${request.condition}<br>
+                      <strong>Price:</strong> ₹${request.price || 0}<br>
+                      <strong>Student:</strong> ${request.studentId ? request.studentId.name : 'Unknown'}<br>
+                      <strong>Submitted:</strong> ${new Date(request.createdAt).toLocaleDateString()}
+                    </small>
+                  </div>
+                  ${request.returnDeadline ? `<p class="mb-2"><small class="text-info"><strong>Return Deadline:</strong> ${new Date(request.returnDeadline).toLocaleDateString()}</small></p>` : ''}
+                  ${request.additionalNotes ? `<p class="mb-2"><small class="text-muted"><strong>Notes:</strong> ${request.additionalNotes}</small></p>` : ''}
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge ${request.status === 'pending' ? 'bg-warning' : request.status === 'approved' ? 'bg-success' : 'bg-danger'}">${request.status.toUpperCase()}</span>
+                    ${request.status === 'pending' ? 
+                      `<div>
+                        <button class="btn btn-success btn-sm me-2" onclick="approveLendingRequest('${request._id}')">
+                          <i class="fa fa-check"></i> Approve
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="rejectLendingRequest('${request._id}')">
+                          <i class="fa fa-times"></i> Reject
+                        </button>
+                      </div>` : 
+                      `<small class="text-muted">${request.adminNotes || 'No admin notes'}</small>`
+                    }
+                  </div>
+                </div>
+              </div>
+            `;
+            container.appendChild(card);
+          }, idx * 100);
+        });
+
+        // Update badge count
+        const pendingCount = lendingRequests.filter(r => r.status === 'pending').length;
+        const badge = document.getElementById('lendingRequestsBadge');
+        if (pendingCount > 0) {
+          badge.textContent = pendingCount;
+          badge.style.display = 'inline';
+        } else {
+          badge.style.display = 'none';
+        }
+
+      } catch (error) {
+        console.error('Error loading lending requests:', error);
+        document.getElementById('lendingRequestsContainer').innerHTML = 
+          '<div class="col-12"><div class="alert alert-danger">Failed to load lending requests.</div></div>';
+      }
+    }
+
+    // Approve Lending Request
+    window.approveLendingRequest = async function(id) {
+      if (!confirm('Are you sure you want to approve this lending request?')) return;
+      
+      try {
+        const response = await fetch(`http://localhost:5000/api/lending-requests/${id}/decision`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            status: 'approved',
+            adminNotes: 'Approved by admin'
+          })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          showHotToast('Lending request approved successfully!', 'success');
+          loadLendingRequests();
+          loadDashboardStats();
+        } else {
+          showHotToast(data.error || 'Failed to approve request', 'danger');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showHotToast('Failed to approve request', 'danger');
+      }
+    };
+
+    // Reject Lending Request
+    window.rejectLendingRequest = async function(id) {
+      const reason = prompt('Please provide a reason for rejection (optional):');
+      if (reason === null) return; // User cancelled
+      
+      try {
+        const response = await fetch(`http://localhost:5000/api/lending-requests/${id}/decision`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            status: 'rejected',
+            adminNotes: reason || 'Rejected by admin'
+          })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          showHotToast('Lending request rejected', 'warning');
+          loadLendingRequests();
+        } else {
+          showHotToast(data.error || 'Failed to reject request', 'danger');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showHotToast('Failed to reject request', 'danger');
+      }
+    };
+
+    // Navbar functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Dark mode toggle
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const icon = darkModeToggle.querySelector('i');
+        if (document.body.classList.contains('dark-mode')) {
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+          localStorage.setItem('darkMode', 'enabled');
+        } else {
+          icon.classList.remove('fa-sun');
+          icon.classList.add('fa-moon');
+          localStorage.setItem('darkMode', 'disabled');
+        }
+      });
+
+      // Check for saved dark mode preference
+      if (localStorage.getItem('darkMode') === 'enabled') {
+        document.body.classList.add('dark-mode');
+        darkModeToggle.querySelector('i').classList.remove('fa-moon');
+        darkModeToggle.querySelector('i').classList.add('fa-sun');
+      }
+
+      // Check if user is logged in and update navbar accordingly
+      const user = JSON.parse(localStorage.getItem('user'));
+      const loginNavItem = document.getElementById('loginNavItem');
+      
+      if (user) {
+        // User is logged in, show user info and logout
+        loginNavItem.innerHTML = `
+          <div class="dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-user-shield me-1"></i>${user.name} (Admin)
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="admin-dashboard.html">Dashboard</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li>
+            </ul>
+          </div>
+        `;
+      } else {
+        // User is not logged in, redirect to login
+        window.location.href = 'login.html';
+      }
+
+      // Initialize flatpickr calendar for delivery date
+      flatpickr('#deliveryDateInput', {
+        minDate: 'today',
+        dateFormat: 'Y-m-d',
+        disableMobile: true
+      });
+
+      // --- Location Search Autocomplete (with marker popup and keyboard navigation) ---
+      const searchInput = document.getElementById('locationSearchInput');
+      const suggestionsList = document.getElementById('locationSearchSuggestions');
+      let searchTimeout = null;
+      let lastSearchResults = [];
+      let selectedSuggestionIdx = -1;
+      searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        if (searchTimeout) clearTimeout(searchTimeout);
+        if (!query) {
+          suggestionsList.style.display = 'none';
+          suggestionsList.innerHTML = '';
+          selectedSuggestionIdx = -1;
+          return;
+        }
+        searchTimeout = setTimeout(async () => {
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=7`);
+          const data = await res.json();
+          lastSearchResults = data;
+          suggestionsList.innerHTML = '';
+          selectedSuggestionIdx = -1;
+          if (data.length) {
+            data.forEach((item, idx) => {
+              const li = document.createElement('li');
+              li.className = 'list-group-item';
+              li.textContent = item.display_name;
+              li.tabIndex = 0;
+              li.onclick = () => {
+                // Ensure map is initialized and visible
+                if (!locationPickerMap) return;
+                const lat = parseFloat(item.lat);
+                const lon = parseFloat(item.lon);
+                // Animate map to location
+                locationPickerMap.flyTo([lat, lon], 17, { animate: true, duration: 1.1 });
+                // Remove old marker if present
+                if (locationMarker) locationPickerMap.removeLayer(locationMarker);
+                selectedLatLng = { lat, lng: lon };
+                locationMarker = L.marker(selectedLatLng, { icon: customMarkerIcon, riseOnHover: true }).addTo(locationPickerMap);
+                // Prefer most specific name
+                selectedLocationName =
+                  item.address.building ||
+                  item.address.temple ||
+                  item.address.college ||
+                  item.address.school ||
+                  item.address.university ||
+                  item.address.community_centre ||
+                  item.address.townhall ||
+                  item.address.hospital ||
+                  item.address.library ||
+                  item.address.mall ||
+                  item.address.cinema ||
+                  item.address.bus_station ||
+                  item.address.road ||
+                  item.address.neighbourhood ||
+                  item.address.suburb ||
+                  item.address.quarter ||
+                  item.address.nagar ||
+                  item.address.area ||
+                  item.address.village ||
+                  item.address.town ||
+                  item.address.city ||
+                  item.address.hamlet ||
+                  item.display_name ||
+                  `Lat: ${lat.toFixed(5)}, Lng: ${lon.toFixed(5)}`;
+                searchInput.value = selectedLocationName;
+                // Save to localStorage
+                localStorage.setItem('lastSelectedLocation', JSON.stringify({ lat, lon, name: selectedLocationName }));
+                // Show marker popup
+                setTimeout(() => {
+                  locationMarker.bindPopup(selectedLocationName).openPopup();
+                  // Ensure map is centered on marker after animation
+                  locationPickerMap.setView([lat, lon], 17, { animate: false });
+                }, 1200);
+                suggestionsList.style.display = 'none';
+                suggestionsList.innerHTML = '';
+                showHotToast('Location saved!', 'success');
+              };
+              li.onkeydown = (e) => { if (e.key === 'Enter') li.click(); };
+              suggestionsList.appendChild(li);
+            });
+            suggestionsList.style.display = 'block';
+          } else {
+            suggestionsList.style.display = 'none';
+          }
+        }, 350);
+      });
+      // Keyboard navigation for suggestions
+      searchInput.addEventListener('keydown', function(e) {
+        const items = Array.from(suggestionsList.querySelectorAll('li'));
+        if (!items.length) return;
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          selectedSuggestionIdx = (selectedSuggestionIdx + 1) % items.length;
+          items.forEach((li, i) => li.classList.toggle('active', i === selectedSuggestionIdx));
+          items[selectedSuggestionIdx].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          selectedSuggestionIdx = (selectedSuggestionIdx - 1 + items.length) % items.length;
+          items.forEach((li, i) => li.classList.toggle('active', i === selectedSuggestionIdx));
+          items[selectedSuggestionIdx].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'Enter' && selectedSuggestionIdx >= 0) {
+          e.preventDefault();
+          items[selectedSuggestionIdx].click();
+        }
+      });
+      // Hide suggestions on blur
+      searchInput.addEventListener('blur', () => setTimeout(() => { suggestionsList.style.display = 'none'; }, 200));
+      // Show suggestions on focus if there are results
+      searchInput.addEventListener('focus', () => {
+        if (lastSearchResults.length) suggestionsList.style.display = 'block';
+      });
+      // Style the suggestions dropdown to always appear above the map
+      suggestionsList.style.zIndex = 1055;
+      suggestionsList.style.position = 'absolute';
+      suggestionsList.style.background = '#fff';
+      suggestionsList.style.border = '1px solid #e3eaf7';
+      suggestionsList.style.boxShadow = '0 2px 8px #4a6fa51a';
+      suggestionsList.style.borderRadius = '0 0 8px 8px';
+      suggestionsList.style.maxHeight = '180px';
+      suggestionsList.style.overflowY = 'auto';
+    });
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem('user');
+      window.location.href = 'index.html';
+    }
+
+    // Initial load with shimmer
+    setTimeout(() => {
+      loadDashboardStats();
+      // Show dashboard by default
+      document.querySelector('.sidebar .nav-link[data-section="dashboard"]').click();
+    }, 700);
+
+    // Search icon click handler
+    document.getElementById('locationSearchBtn').onclick = async function() {
+      const query = searchInput.value.trim();
+      if (!query) return;
+      if (!locationPickerMap) {
+        showHotToast('Map is not ready. Please wait a moment and try again.', 'danger');
+        return;
+      }
+      // Fetch suggestions
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=7`);
+      const data = await res.json();
+      if (data.length) {
+        const item = data[0];
+        const lat = parseFloat(item.lat);
+        const lon = parseFloat(item.lon);
+        locationPickerMap.flyTo([lat, lon], 17, { animate: true, duration: 1.1 });
+        if (locationMarker) locationPickerMap.removeLayer(locationMarker);
+        selectedLatLng = { lat, lng: lon };
+        locationMarker = L.marker(selectedLatLng, { icon: customMarkerIcon, riseOnHover: true }).addTo(locationPickerMap);
+        selectedLocationName =
+          item.address.building ||
+          item.address.temple ||
+          item.address.college ||
+          item.address.school ||
+          item.address.university ||
+          item.address.community_centre ||
+          item.address.townhall ||
+          item.address.hospital ||
+          item.address.library ||
+          item.address.mall ||
+          item.address.cinema ||
+          item.address.bus_station ||
+          item.address.road ||
+          item.address.neighbourhood ||
+          item.address.suburb ||
+          item.address.quarter ||
+          item.address.nagar ||
+          item.address.area ||
+          item.address.village ||
+          item.address.town ||
+          item.address.city ||
+          item.address.hamlet ||
+          item.display_name ||
+          `Lat: ${lat.toFixed(5)}, Lng: ${lon.toFixed(5)}`;
+        searchInput.value = selectedLocationName;
+        // Save to localStorage
+        localStorage.setItem('lastSelectedLocation', JSON.stringify({ lat, lon, name: selectedLocationName }));
+        setTimeout(() => {
+          locationMarker.bindPopup(selectedLocationName).openPopup();
+          locationPickerMap.setView([lat, lon], 17, { animate: false });
+        }, 1200);
+        suggestionsList.style.display = 'none';
+        suggestionsList.innerHTML = '';
+      } else {
+        showHotToast('No location found for your search.', 'danger');
+      }
+    };
+
+    // Emergency Need Requests logic
+    async function loadEmergencyNeedRequests() {
+      const res = await fetch('http://localhost:5000/api/emergency-need');
+      const requests = await res.json();
+      const tbody = document.getElementById('emergencyNeedRequestsTableBody');
+      if (!requests.length) {
+        tbody.innerHTML = '<tr><td colspan="6">No emergency need requests found.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      requests.forEach((req, idx) => {
+        setTimeout(() => {
+          tbody.innerHTML += `
+            <tr class="card-anim">
+              <td>${req.user?.name || ''} <br/> <small>${req.user?.email || ''}</small></td>
+              <td>${req.productName || ''}</td>
+              <td>${req.message}</td>
+              <td>${req.expectedDate ? new Date(req.expectedDate).toLocaleDateString() : ''}</td>
+              <td><span class="badge ${req.status === 'active' ? 'bg-warning' : req.status === 'resolved' ? 'bg-success' : 'bg-danger'}">${req.status.toUpperCase()}</span></td>
+              <td>
+                ${req.status === 'active' ? `
+                  <button class="btn btn-success btn-sm btn-anim me-2" onclick="showEmergencyNeedConfirm('${req._id}','accepted')"><i class="fa fa-check"></i> Accept</button>
+                  <button class="btn btn-danger btn-sm btn-anim" onclick="showEmergencyNeedConfirm('${req._id}','rejected')"><i class="fa fa-times"></i> Reject</button>
+                ` : req.status.charAt(0).toUpperCase() + req.status.slice(1)}
+              </td>
+            </tr>
+          `;
+        }, idx * 60);
+      });
+    }
+
+    // Confirmation modal logic
+    let emergencyNeedAction = { id: null, status: null };
+    window.showEmergencyNeedConfirm = function(id, status) {
+      emergencyNeedAction = { id, status };
+      const text = status === 'accepted' ? 'Are you sure you want to ACCEPT this emergency need request?' : 'Are you sure you want to REJECT this emergency need request?';
+      document.getElementById('emergencyNeedConfirmText').textContent = text;
+      const modal = new bootstrap.Modal(document.getElementById('emergencyNeedConfirmModal'));
+      modal.show();
+    };
+    document.getElementById('emergencyNeedConfirmBtn').onclick = async function() {
+      if (!emergencyNeedAction.id || !emergencyNeedAction.status) return;
+      await fetch(`http://localhost:5000/api/emergency-need/${emergencyNeedAction.id}/decision`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: emergencyNeedAction.status })
+      });
+      const modal = bootstrap.Modal.getInstance(document.getElementById('emergencyNeedConfirmModal'));
+      if (modal) modal.hide();
+      loadEmergencyNeedRequests();
+      showHotToast('Request updated', 'success');
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // ... existing code ...
+      loadReturnedOrders();
+    });
+
+    async function loadReturnedOrders() {
+      const container = document.getElementById('returnedOrdersRow');
+      if (!container) return;
+      try {
+        const res = await fetch('http://localhost:5000/api/returns');
+        const returns = await res.json();
+        if (!returns.length) {
+          container.innerHTML = `<div class='col-12'><div class='alert alert-info'><i class='fa fa-info-circle me-2'></i>No returned orders yet.</div></div>`;
+          return;
+        }
+        container.innerHTML = returns.map(ret => `
+          <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+              <div class="card-body">
+                <h5 class="card-title mb-2"><i class="fa fa-user-circle me-2 text-primary"></i>${ret.student?.name || 'Student'}</h5>
+                <p class="card-text mb-2"><b>Product:</b> ${ret.product?.name || ''}</p>
+                <p class="card-text mb-2"><b>Return Location:</b> ${ret.returnLocation}</p>
+                <p class="card-text mb-2"><b>Return Date:</b> ${ret.returnDate ? new Date(ret.returnDate).toLocaleString() : ''}</p>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<div class='col-12'><div class='alert alert-danger'><i class='fa fa-times-circle me-2'></i>Failed to load returned orders.</div></div>`;
+      }
+    }
+  </script>
+</body>
+</html> 

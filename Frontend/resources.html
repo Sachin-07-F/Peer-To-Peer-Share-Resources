@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Resources | CampusShare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4fc3f7;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: white;
+        }
+
+        .navbar-brand img {
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: white;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .resource-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 1.5rem;
+            height: 100%;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .resource-img {
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px 10px 0 0;
+            background-color: #f5f5f5;
+        }
+
+        .availability-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .available {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .borrowed {
+            background-color: var(--warning-color);
+            color: var(--dark-color);
+        }
+
+        .notification-badge {
+            position: relative;
+        }
+
+        .badge-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 3rem 0;
+            margin-top: 3rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        .dark-mode .resource-card {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .dark-mode .footer {
+            background-color: #0a0a0a;
+        }
+
+        .dark-mode .resource-img {
+            background-color: #2a2a2a;
+        }
+
+        /* Animation classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Star Rating UI */
+        #starRating {
+            display: flex;
+            gap: 0.3em;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        #starRating .star {
+            font-size: 2.2rem;
+            color: #ccc;
+            transition: color 0.2s, transform 0.15s;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        #starRating .star.text-warning {
+            color: #ffc107 !important;
+        }
+
+        #starRating .star:hover,
+        #starRating .star:focus {
+            color: #ffb300;
+            transform: scale(1.18);
+            outline: none;
+        }
+
+        #starRating .star:active {
+            transform: scale(0.95);
+        }
+
+        #starRating .star.selected {
+            color: #ffc107;
+        }
+
+        #main_hr_tag {
+            width: 96%;
+            margin-left: 2%
+        }
+
+        .fa-facebook {
+            color: #1877F2;
+        }
+
+        .fa-facebook:hover {
+            color: #145dbf;
+        }
+
+        .fa-x {
+            color: #000000;
+        }
+
+        body.dark-mode .fa-x {
+            color: #999;
+        }
+
+        .fa-x:hover {
+            color: #1DA1F2;
+        }
+
+        body.dark-mode .fa-x:hover {
+            color: #1DA1F2;
+        }
+
+        .fa-instagram {
+            color: #E4405F;
+        }
+
+        .fa-instagram:hover {
+            color: #cc3354;
+
+        }
+
+        /* Shimmer loading effect */
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg,
+                    rgba(255, 255, 255, 0) 0%,
+                    rgba(255, 255, 255, 0.3) 50%,
+                    rgba(255, 255, 255, 0) 100%);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .resource-img {
+                height: 150px;
+            }
+
+            .resource-card {
+                margin-bottom: 1rem;
+            }
+        }
+
+
+
+        /* Responsive adjustments for badges */
+        @media (max-width: 576px) {
+            .d-flex.align-items-center.mt-2 {
+                flex-wrap: wrap;
+            }
+
+            .d-flex.align-items-center.mt-2 .badge {
+                margin-bottom: 0.5rem;
+                font-size: 0.75rem;
+                padding: 0.35em 0.65em;
+                width: 100%;
+                text-align: left;
+            }
+
+            .d-flex.align-items-center.mt-2 .badge i {
+                margin-right: 0.4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <img src="https://png.pngtree.com/png-vector/20190425/ourmid/pngtree-vector-male-student-icon-png-image_992053.jpg"
+                    alt="CampusShare Logo" class="rounded-circle floating">
+                <span>Peer To Peer Share</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="resources.html">Browse Resources</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="my-resources.html">My Resources</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="lend-resource.html">Lend Item</a>
+                    </li>
+
+                    <!-- <li class="nav-item">
+                        <a class="nav-link notification-badge" href="#">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge-count">3</span>
+                        </a>
+                    </li> -->
+                    <li class="nav-item ms-2" id="loginNavItem">
+                        <!-- Login/Signup or user dropdown will be injected here by JS -->
+                    </li>
+                    <li class="nav-item ms-2">
+                        <button class="btn btn-outline-light" id="darkModeToggle">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1>Available Resources</h1>
+                <div class="d-flex align-items-center mt-2">
+                    <span class="badge bg-primary me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-box me-1"></i>
+                        <span id="productCount">9</span> Products Added by Admin
+                    </span>
+                    <span class="badge bg-success me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-check-circle me-1"></i>
+                        <span id="availableCount">6</span> Available
+                    </span>
+                    <span class="badge bg-warning text-dark" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>
+                        <span id="borrowedCount">3</span> Borrowed
+                    </span>
+                </div>
+            </div>
+            <!-- <a href="lend-resource.html" class="btn btn-primary">Lend an Item</a> -->
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="row mb-4">
+            <div class="col-md-8 mb-3 mb-md-0">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search resources..." id="searchInput">
+                    <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="categoryFilter">
+                    <option value="all" selected>All Categories</option>
+                    <option value="textbooks">Textbooks</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="lab">Lab Equipment</option>
+                    <option value="notes">Notes</option>
+                    <option value="tools">Tools</option>
+                    <option value="books">Books</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Emergency Need Button -->
+        <div class="mb-4 text-end">
+            <button class="btn btn-danger" id="emergencyNeedBtn">
+                <i class="fas fa-exclamation-triangle me-2"></i>Emergency Resources
+            </button>
+        </div>
+        <!-- Emergency Need Modal with Options -->
+        <div class="modal fade" id="emergencyNeedOptionsModal" tabindex="-1"
+            aria-labelledby="emergencyNeedOptionsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="emergencyNeedOptionsModalLabel"><i
+                                class="fas fa-exclamation-triangle text-danger me-2"></i>Emergency Need</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <button class="btn btn-outline-primary w-100 mb-3" id="showMyEmergencyRequestBtn"><i
+                                class="fa fa-user me-2"></i>My Request</button>
+                        <button class="btn btn-danger w-100" id="showEmergencyFormBtn"><i
+                                class="fa fa-plus me-2"></i>Emergency Form</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Emergency Need Request Status for Student (hidden by default) -->
+        <div id="studentEmergencyNeedStatus" class="mb-4" style="display:none;"></div>
+        <!-- Emergency Need Form Modal (moved from above) -->
+        <div class="modal fade" id="emergencyNeedModal" tabindex="-1" aria-labelledby="emergencyNeedModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="emergencyNeedModalLabel"><i
+                                class="fas fa-exclamation-triangle text-danger me-2"></i>Emergency Need Alert</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="emergencyNeedForm" novalidate>
+                            <div class="mb-3">
+                                <label for="emergencyProductName" class="form-label">Product Name</label>
+                                <input type="text" class="form-control" id="emergencyProductName" required
+                                    placeholder="What item do you need?" />
+                                <div class="invalid-feedback">Please enter the product name.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="emergencyMessage" class="form-label">Describe your emergency need</label>
+                                <textarea class="form-control" id="emergencyMessage" rows="3" required
+                                    placeholder="Explain your urgent need..."></textarea>
+                                <div class="invalid-feedback">Please describe your emergency need.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="emergencyExpectedDate" class="form-label">Expected Date Needed</label>
+                                <div class="input-group">
+                                    <input type="date" class="form-control" id="emergencyExpectedDate" required />
+                                    <button class="btn btn-outline-secondary" type="button" id="calendarIconBtn"
+                                        tabindex="-1"><i class="fa fa-calendar"></i></button>
+                                </div>
+                                <div class="invalid-feedback">Please select the expected date.</div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-danger btn-lg">Send Alert</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resources Grid -->
+        <div class="row" id="resourcesGrid">
+            <!-- Loading skeleton cards -->
+            <div class="col-md-4 mb-4">
+                <div class="card resource-card shimmer">
+                    <div class="position-relative">
+                        <div class="resource-img" style="background-color: #f0f0f0; height: 200px;"></div>
+                        <div class="availability-badge available" style="opacity: 0.5;">Loading...</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="placeholder-glow">
+                            <h5 class="card-title placeholder col-8"></h5>
+                            <p class="card-text placeholder col-10"></p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="placeholder col-4"></small>
+                                <div class="btn btn-sm btn-primary placeholder col-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card resource-card shimmer">
+                    <div class="position-relative">
+                        <div class="resource-img" style="background-color: #f0f0f0; height: 200px;"></div>
+                        <div class="availability-badge available" style="opacity: 0.5;">Loading...</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="placeholder-glow">
+                            <h5 class="card-title placeholder col-8"></h5>
+                            <p class="card-text placeholder col-10"></p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="placeholder col-4"></small>
+                                <div class="btn btn-sm btn-primary placeholder col-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card resource-card shimmer">
+                    <div class="position-relative">
+                        <div class="resource-img" style="background-color: #f0f0f0; height: 200px;"></div>
+                        <div class="availability-badge available" style="opacity: 0.5;">Loading...</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="placeholder-glow">
+                            <h5 class="card-title placeholder col-8"></h5>
+                            <p class="card-text placeholder col-10"></p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="placeholder col-4"></small>
+                                <div class="btn btn-sm btn-primary placeholder col-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </main>
+
+    <!-- Feedback Button -->
+    <div class="container my-5 text-center" id="feedbackBtnContainer">
+        <button class="btn btn-lg btn-primary shadow" id="openFeedbackBtn">
+            <i class="fas fa-comment-dots me-2"></i>Feedback
+        </button>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="feedbackModalLabel"><i
+                            class="fas fa-star-half-alt me-2 text-warning"></i>Share Your Feedback</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="feedbackForm" novalidate>
+                        <div class="mb-3">
+                            <label for="feedbackName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="feedbackName" placeholder="Your Name" required>
+                            <div class="invalid-feedback">Please enter your name.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="feedbackEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="feedbackEmail" placeholder="you@example.com"
+                                required>
+                            <div class="invalid-feedback">Please enter a valid email address.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="feedbackMessage" class="form-label">Message</label>
+                            <textarea class="form-control" id="feedbackMessage" rows="3" placeholder="Your feedback..."
+                                required></textarea>
+                            <div class="invalid-feedback">Please enter your feedback.</div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Your Rating</label>
+                            <div id="starRating" class="mb-1">
+                                <i class="fa-regular fa-star fa-2x star" data-value="1"></i>
+                                <i class="fa-regular fa-star fa-2x star" data-value="2"></i>
+                                <i class="fa-regular fa-star fa-2x star" data-value="3"></i>
+                                <i class="fa-regular fa-star fa-2x star" data-value="4"></i>
+                                <i class="fa-regular fa-star fa-2x star" data-value="5"></i>
+                            </div>
+                            <input type="hidden" id="feedbackRating" required>
+                            <div class="invalid-feedback">Please select a rating.</div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Submit Feedback</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Success Modal -->
+    <div class="modal fade" id="feedbackSuccessModal" tabindex="-1" aria-labelledby="feedbackSuccessModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="feedbackSuccessModalLabel"><i
+                            class="fas fa-check-circle me-2"></i>Feedback Saved Successfully!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="fs-5 mb-3">Thank you for your valuable feedback.</p>
+                    <i class="fas fa-smile-beam fa-4x text-success mb-3"></i>
+                    <p>We appreciate your input to help us improve CampusShare!</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for large image preview (global, always present) -->
+    <div class="modal fade" id="productImageModal" tabindex="-1" aria-labelledby="productImageModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content"
+                style="background: transparent; box-shadow: none; border: none; position: relative;">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-3 bg-white rounded-circle"
+                    data-bs-dismiss="modal" aria-label="Close" style="z-index:10;font-size:1.5rem;"></button>
+                <div class="modal-body d-flex justify-content-center align-items-center p-0">
+                    <img id="productImageModalImg" src="" alt="Product"
+                        style="max-width: 90vw; max-height: 80vh; border-radius: 16px; box-shadow: 0 8px 32px #4a6fa51a; background: #fff;" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Need Request Status Modal -->
+    <div class="modal fade" id="emergencyNeedStatusModal" tabindex="-1" aria-labelledby="emergencyNeedStatusModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emergencyNeedStatusModalLabel"><i
+                            class="fa fa-exclamation-triangle text-warning me-2"></i>My Emergency Need Request</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="emergencyNeedStatusModalBody">
+                    <!-- Content will be injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Need Success Modal -->
+    <div class="modal fade" id="emergencyNeedSuccessModal" tabindex="-1"
+        aria-labelledby="emergencyNeedSuccessModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="emergencyNeedSuccessModalLabel"><i
+                            class="fa fa-check-circle me-2"></i>Emergency Alert Sent!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="fs-5 mb-3">Your emergency need alert has been submitted successfully.</p>
+                    <i class="fa fa-bell fa-4x text-success mb-3"></i>
+                    <p>Our team will review your request as soon as possible.</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Emergency Need Error Modal -->
+    <div class="modal fade" id="emergencyNeedErrorModal" tabindex="-1" aria-labelledby="emergencyNeedErrorModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="emergencyNeedErrorModalLabel"><i
+                            class="fa fa-times-circle me-2"></i>Error</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center" id="emergencyNeedErrorModalBody">
+                    <!-- Error message will be injected here -->
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Other Students' Emergency Needs Section -->
+    <div class="container my-5" id="otherEmergencyNeedsContainer">
+        <h3 class="mb-4"><i class="fa fa-exclamation-triangle text-danger me-2"></i>Other Students' Emergency Needs</h3>
+        <div class="row" id="otherEmergencyNeedsRow">
+            <!-- Cards will be injected by JS -->
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5>CampusShare</h5>
+                    <p class="mt-3">Connecting students to share resources and reduce waste on campus.</p>
+                    <div class="social-icons mt-3">
+                        <a href="https://www.facebook.com/sachin.fulari.75/"><i class="fab fa-facebook"></i></a>
+                        <a href="https://x.com/Sachin1673959?t=g3MwwqlgGZdJ01JJg_2vKg&s=09"><i class="fab fa-x"></i></a>
+                        <a href="https://www.instagram.com/n_i_h_c_a_s_07?igsh=OW90ajE4NHY3bXVi"><i
+                                class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-4 mb-md-0">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled mt-3">
+                        <li class="mb-2"><a href="index.html" class="text-white-50">Home</a></li>
+                        <li class="mb-2"><a href="resources.html" class="text-white-50">Browse</a></li>
+                        <li class="mb-2"><a href="my-resources.html" class="text-white-50">My Resources</a></li>
+                        <li class="mb-2"><a href="lend-resource.html" class="text-white-50">Lend Item</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Support</h5>
+                    <ul class="list-unstyled mt-3">
+                        <li class="mb-2"><a href="chat.html" class="text-white-50">Help Center</a></li>
+                        <li class="mb-2"><a href="resources.html" class="text-white-50">Emergency Need</a></li>
+                        <li class="mb-2"><a href="resources.html" class="text-white-50">Feedback</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Contact Us</h5>
+
+                    <p class="mt-3 text-white-50">
+                        📍 Campus Share HQ, Solapur, India<br>
+                        📧 sachinfulari529@gmail.com<br>
+                        📞 +91-8767628478
+                    </p>
+                </div>
+            </div>
+            <hr class="my-4 bg-secondary">
+            <!-- <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2023 CampusShare. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white-50 me-3">Privacy Policy</a>
+                    <a href="#" class="text-white-50">Terms of Service</a>
+                </div>
+            </div> -->
+
+
+
+
+
+
+
+
+
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 CampusShare. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <!-- Update these two links -->
+                    <a href="#" class="text-white-50 me-3" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy
+                        Policy</a>
+                    <a href="#" class="text-white-50" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of
+                        Service</a>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- Privacy Policy Modal -->
+            <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content bg-light text-dark shadow rounded-3">
+                        <div class="modal-header border-bottom-0">
+                            <h5 class="modal-title fw-bold" id="privacyModalLabel">Privacy Policy</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <hr / id="main_hr_tag">
+                        <div class="modal-body px-4">
+                            <p><strong>1. What information do we collect?</strong></p>
+                            <p>We collect details like your name, email address, and interactions with the platform to
+                                enhance your experience.</p>
+
+                            <p><strong>2. How is your data used?</strong></p>
+                            <p>Your data is used strictly to provide services, personalize content, and improve
+                                functionality. It is never sold or shared without consent.</p>
+
+                            <p><strong>3. Data Security</strong></p>
+                            <p>We implement the latest security measures to protect your personal information from
+                                unauthorized access or disclosure. All passwords are encrypted using industry-standard
+                                hashing techniques like bcrypt to ensure they remain secure and unreadable even in the
+                                event of a data breach.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terms of Service Modal -->
+            <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content bg-light text-dark shadow rounded-3">
+                        <div class="modal-header border-bottom-0">
+                            <h5 class="modal-title fw-bold" id="termsModalLabel">Terms of Service</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <hr / id="main_hr_tag">
+                        <div class="modal-body px-4">
+                            <p><strong>1. Acceptance of Terms</strong></p>
+                            <p>By using CampusShare, you agree to abide by all rules regarding item sharing, lending,
+                                and borrowing.</p>
+
+                            <p><strong>2. User Responsibilities</strong></p>
+                            <p>You are expected to handle shared resources responsibly. Misuse, damage, or theft will
+                                result in penalties or account suspension.</p>
+
+                            <p><strong>3. Changes to Terms</strong></p>
+                            <p>We may update these terms periodically. Continued use implies acceptance of the latest
+                                terms and conditions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        // Dark mode toggle functionality
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const icon = darkModeToggle.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        });
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            darkModeToggle.querySelector('i').classList.remove('fa-moon');
+            darkModeToggle.querySelector('i').classList.add('fa-sun');
+        }
+
+        // Global variables
+        let allProducts = [];
+        let filteredProducts = [];
+
+        //change-1
+        let currentPage = 1;
+        const itemsPerPage = 9;
+        let totalPages = 1;
+
+        // Search and filter functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const searchButton = document.getElementById('searchButton');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const resourcesGrid = document.getElementById('resourcesGrid');
+
+            // Function to fetch products from backend
+            async function fetchProducts() {
+                try {
+                    const response = await fetch('http://localhost:5000/api/products');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch products');
+                    }
+                    const products = await response.json();
+                    // Fetch student's requests to disable already requested items
+                    let requestedProductIds = new Set();
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    if (user) {
+                        const myRequestsRes = await fetch(`http://localhost:5000/api/myrequests/${user.id || user._id}`);
+                        const myRequests = await myRequestsRes.json();
+                        requestedProductIds = new Set(myRequests.map(r => r.product?._id));
+                    }
+                    allProducts = products;
+                    displayProducts(products, requestedProductIds);
+                    updateProductCounts();
+                   
+                   
+                } catch (error) {
+                    console.error('Error fetching products:', error);
+                    showError('Failed to load products. Please try again later.');
+                }
+            }
+
+            // Function to display products
+
+            //change-2
+
+            // function displayProducts(products, requestedProductIds = new Set()) {
+            //     resourcesGrid.innerHTML = '';
+
+            //     if (products.length === 0) {
+            //         resourcesGrid.innerHTML = `
+            //             <div class="col-12 text-center">
+            //                 <div class="alert alert-info">
+            //                     <i class="fas fa-info-circle me-2"></i>
+            //                     No products found. Try adjusting your search or filter.
+            //                 </div>
+            //             </div>
+            //         `;
+            //         return;
+            //     }
+
+            //     products.forEach(product => {
+            //         const col = createProductCard(product, requestedProductIds);
+            //         resourcesGrid.appendChild(col);
+            //     });
+            // }
+
+
+
+            function displayProducts(products, requestedProductIds = new Set()) {
+                resourcesGrid.innerHTML = '';
+
+                if (products.length === 0) {
+                    resourcesGrid.innerHTML = `
+            <div class="col-12 text-center">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No products found. Try adjusting your search or filter.
+                </div>
+            </div>
+        `;
+                    return;
+                }
+
+                // Calculate pagination
+                totalPages = Math.ceil(products.length / itemsPerPage);
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, products.length);
+                const paginatedProducts = products.slice(startIndex, endIndex);
+
+                // Display products for current page
+                paginatedProducts.forEach(product => {
+                    const col = createProductCard(product, requestedProductIds);
+                    resourcesGrid.appendChild(col);
+                });
+
+                // Update pagination controls
+                updatePaginationControls();
+            }
+
+            //change-3 add-1
+
+            function updatePaginationControls() {
+                const paginationContainer = document.querySelector('.pagination');
+                if (!paginationContainer) return;
+
+                // Clear existing pagination
+                paginationContainer.innerHTML = '';
+
+                // Previous button
+                const prevLi = document.createElement('li');
+                prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+                prevLi.innerHTML = `<a class="page-link" href="#" tabindex="-1">Previous</a>`;
+                prevLi.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (currentPage > 1) {
+                        currentPage--;
+                        filterResources();
+                    }
+                });
+                paginationContainer.appendChild(prevLi);
+
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageLi = document.createElement('li');
+                    pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                    pageLi.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                    pageLi.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        currentPage = i;
+                        filterResources();
+                    });
+                    paginationContainer.appendChild(pageLi);
+                }
+
+                // Next button
+                const nextLi = document.createElement('li');
+                nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+                nextLi.innerHTML = `<a class="page-link" href="#">Next</a>`;
+                nextLi.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        filterResources();
+                    }
+                });
+                paginationContainer.appendChild(nextLi);
+            }
+
+            // Function to create product card
+            function createProductCard(product, requestedProductIds = new Set()) {
+                const col = document.createElement('div');
+                col.className = 'col-md-4 mb-4 fade-in';
+
+                // Safely get product properties with fallbacks
+                const productName = product.name || 'Unnamed Product';
+                const productDescription = product.description && product.description.trim() !== '' ? product.description : 'No description available';
+                const productCategory = product.category || 'other';
+                const productPrice = product.price || 0;
+                const productImage = product.image || 'assets/Not_Found.png';
+                const productId = product._id || product.id || '';
+                const productOwnerId = product.createdBy?._id || product.createdBy || '';
+
+                col.id = `product-${productId}`; // Add ID to the product card container
+                col.setAttribute('data-category', productCategory);
+                col.setAttribute('data-search', `${productName} ${productDescription} ${productCategory}`.toLowerCase());
+
+                const availabilityClass = product.status === 'borrowed' ? 'borrowed' : 'available';
+                const availabilityText = product.status === 'borrowed' ? 'Borrowed' : 'Available';
+                let buttonHtml = '';
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (user && (user.id === productOwnerId || user._id === productOwnerId)) {
+                    buttonHtml = `<button class="btn btn-sm btn-secondary" disabled title="You own this item">Your Item</button>`;
+                } else if (product.status === 'borrowed') {
+                    buttonHtml = `<button class="btn btn-sm btn-secondary" disabled>Unavailable</button>`;
+                } else if (requestedProductIds.has(productId)) {
+                    buttonHtml = `<button class="btn btn-sm btn-info" disabled><i class="fa fa-check-circle me-2"></i>Requested</button>`;
+                } else {
+                    buttonHtml = `<button class="btn btn-sm btn-primary" onclick="requestProduct('${productId}')">Request</button>`;
+                }
+
+                col.innerHTML = `
+                    <div class="card resource-card">
+                        <div class="position-relative">
+                            <img src="${productImage}"
+                                 class="card-img-top resource-img"
+                                 alt="${productName}"
+                                 style="cursor:pointer;"
+                                 onclick="showProductImageModal('${productImage.replace(/'/g, '\'')}', event)"
+                                 onerror="this.src='assets/Not_Found.png';">
+                            <span class="availability-badge ${availabilityClass}">${availabilityText}</span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">${productName}</h5>
+                            <p class="card-text">${productDescription}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-pink">Price: ₹${productPrice}</small>
+                                ${buttonHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                return col;
+            }
+
+            // Function to update product counts
+            function updateProductCounts() {
+                const totalProducts = allProducts.length;
+                let availableCount = 0;
+                let borrowedCount = 0;
+
+                allProducts.forEach(product => {
+                    if (product.status === 'borrowed') {
+                        borrowedCount++;
+                    } else {
+                        availableCount++;
+                    }
+                });
+
+                document.getElementById('productCount').textContent = totalProducts;
+                document.getElementById('availableCount').textContent = availableCount;
+                document.getElementById('borrowedCount').textContent = borrowedCount;
+            }
+
+            // Function to filter resources
+
+            //change-4
+
+            function filterResources() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const category = categoryFilter.value;
+
+                filteredProducts = allProducts.filter(product => {
+                    const productCategory = product.category || 'other';
+                    const productName = product.name || '';
+                    const productDescription = product.description || '';
+
+                    const matchesCategory = category === 'all' || productCategory === category;
+                    const searchText = `${productName} ${productDescription} ${productCategory}`.toLowerCase();
+                    const matchesSearch = searchText.includes(searchTerm);
+                    return matchesCategory && matchesSearch;
+                });
+
+                displayProducts(filteredProducts);
+
+                // Update count to show filtered results
+                document.getElementById('productCount').textContent = filteredProducts.length;
+            }
+
+
+
+            // function filterResources() {
+            //     const searchTerm = searchInput.value.toLowerCase();
+            //     const category = categoryFilter.value;
+
+            //     // Reset to first page when filtering
+            //     currentPage = 1;
+
+            //     filteredProducts = allProducts.filter(product => {
+            //         const productCategory = product.category || 'other';
+            //         const productName = product.name || '';
+            //         const productDescription = product.description || '';
+
+            //         const matchesCategory = category === 'all' || productCategory === category;
+            //         const searchText = `${productName} ${productDescription} ${productCategory}`.toLowerCase();
+            //         const matchesSearch = searchText.includes(searchTerm);
+            //         return matchesCategory && matchesSearch;
+            //     });
+
+            //     displayProducts(filteredProducts);
+
+            //     // Update count to show filtered results
+            //     document.getElementById('productCount').textContent = filteredProducts.length;
+            //     document.getElementById('availableCount').textContent = filteredProducts.filter(p => p.status !== 'borrowed').length;
+            //     document.getElementById('borrowedCount').textContent = filteredProducts.filter(p => p.status === 'borrowed').length;
+            // }
+
+            // Function to show error message
+            function showError(message) {
+                resourcesGrid.innerHTML = `
+                    <div class="col-12 text-center">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            ${message}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Event listeners
+            searchInput.addEventListener('input', filterResources);
+            searchButton.addEventListener('click', () => {
+                logSearchActivity(searchInput.value);
+                filterResources();
+            });
+            searchInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    logSearchActivity(searchInput.value);
+                    filterResources();
+                }
+            });
+            categoryFilter.addEventListener('change', filterResources);
+
+            // Log search activity
+            async function logSearchActivity(term) {
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (user && term && term.trim()) {
+                    await fetch('http://localhost:5000/api/search-activity', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: user.id || user._id, searchTerm: term.trim() })
+                    });
+                }
+            }
+
+            // Initial load
+
+            fetchProducts();
+
+        });
+
+        // Function to request a product (called from button click)
+        function requestProduct(productId) {
+            // Check if user is logged in
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+                alert('Please log in to request a product.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Create request
+            const requestData = {
+                productId: productId,
+                studentId: user._id || user.id,
+                contactNumber: user.contactNumber || '',
+                status: 'pending'
+            };
+
+            fetch('http://localhost:5000/api/requests', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Request submitted successfully!');
+                        // Refresh the page to update product status
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Failed to submit request.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to submit request. Please try again.');
+                });
+        }
+
+        function updateNavbarAuth() {
+            const navItem = document.getElementById('loginNavItem');
+            navItem.innerHTML = '';
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user && user.name) {
+                navItem.innerHTML = `
+            <div class="dropdown">
+              <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user me-1"></i>${user.name}
+                <span style="display:inline-block; margin-left:6px; font-size:0.8em; color: #fff; vertical-align: middle;">&#9660;</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="${user.role === 'admin' ? 'admin-dashboard.html' : 'student-dashboard.html'}">Dashboard</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" id="logoutDropdownBtn">Logout</a></li>
+              </ul>
+            </div>
+          `;
+                setTimeout(() => {
+                    const logoutBtn = document.getElementById('logoutDropdownBtn');
+                    if (logoutBtn) {
+                        logoutBtn.onclick = function (e) {
+                            e.preventDefault();
+                            localStorage.removeItem('user');
+                            location.reload();
+                        };
+                    }
+                }, 100);
+            } else {
+                navItem.innerHTML = `
+            <a class="btn btn-outline-light me-2" href="login.html">Login</a>
+            <a class="btn btn-primary" href="login.html#student-signup">Sign Up</a>
+          `;
+            }
+        }
+        updateNavbarAuth();
+
+        // Feedback button and modal logic
+        document.addEventListener('DOMContentLoaded', function () {
+            const feedbackBtn = document.getElementById('openFeedbackBtn');
+            const feedbackModal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+            const feedbackSuccessModal = new bootstrap.Modal(document.getElementById('feedbackSuccessModal'));
+            const feedbackForm = document.getElementById('feedbackForm');
+            const feedbackBtnContainer = document.getElementById('feedbackBtnContainer');
+            const starRating = document.getElementById('starRating');
+            const feedbackRating = document.getElementById('feedbackRating');
+            let selectedRating = 0;
+
+            if (feedbackBtn) {
+                feedbackBtn.addEventListener('click', function () {
+                    // Autofill name and email if user is logged in
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    if (user) {
+                        document.getElementById('feedbackName').value = user.name || '';
+                        document.getElementById('feedbackEmail').value = user.email || '';
+                    } else {
+                        document.getElementById('feedbackName').value = '';
+                        document.getElementById('feedbackEmail').value = '';
+                    }
+                    feedbackModal.show();
+                });
+            }
+
+            // Star rating system
+            if (starRating) {
+                starRating.addEventListener('click', function (e) {
+                    if (e.target.classList.contains('star')) {
+                        selectedRating = parseInt(e.target.getAttribute('data-value'));
+                        feedbackRating.value = selectedRating;
+                        updateStars(selectedRating);
+                    }
+                });
+                function updateStars(rating) {
+                    const stars = starRating.querySelectorAll('.star');
+                    stars.forEach((star, idx) => {
+                        if (idx < rating) {
+                            star.classList.remove('fa-regular');
+                            star.classList.add('fa-solid', 'text-warning');
+                            star.classList.add('selected');
+                        } else {
+                            star.classList.remove('fa-solid', 'text-warning');
+                            star.classList.add('fa-regular');
+                            star.classList.remove('selected');
+                        }
+                    });
+                }
+            }
+
+            // Feedback form submission
+            if (feedbackForm) {
+                feedbackForm.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    // Validate star rating
+                    if (!feedbackRating.value) {
+                        feedbackRating.setCustomValidity('Please select a rating.');
+                    } else {
+                        feedbackRating.setCustomValidity('');
+                    }
+                    if (feedbackForm.checkValidity()) {
+                        // Gather form data
+                        const feedbackData = {
+                            name: document.getElementById('feedbackName').value,
+                            email: document.getElementById('feedbackEmail').value,
+                            message: document.getElementById('feedbackMessage').value,
+                            rating: parseInt(document.getElementById('feedbackRating').value)
+                        };
+                        try {
+                            const response = await fetch('http://localhost:5000/api/feedback', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(feedbackData)
+                            });
+                            if (response.ok) {
+                                feedbackModal.hide();
+                                setTimeout(() => {
+                                    feedbackSuccessModal.show();
+                                    feedbackForm.reset();
+                                    selectedRating = 0;
+                                    updateStars(0);
+                                    feedbackForm.classList.remove('was-validated');
+                                }, 400);
+                            } else {
+                                const data = await response.json();
+                                alert(data.error || 'Failed to save feedback. Please try again.');
+                            }
+                        } catch (err) {
+                            alert('Failed to save feedback. Please try again.');
+                        }
+                    }
+                    feedbackForm.classList.add('was-validated');
+                });
+            }
+        });
+
+        // Emergency Need Button and Modal Logic
+        document.addEventListener('DOMContentLoaded', function () {
+            const emergencyBtn = document.getElementById('emergencyNeedBtn');
+            const emergencyOptionsModal = new bootstrap.Modal(document.getElementById('emergencyNeedOptionsModal'));
+            const emergencyFormModal = new bootstrap.Modal(document.getElementById('emergencyNeedModal'));
+            const emergencySuccessModal = new bootstrap.Modal(document.getElementById('emergencyNeedSuccessModal'));
+            const emergencyErrorModal = new bootstrap.Modal(document.getElementById('emergencyNeedErrorModal'));
+            const emergencyErrorModalBody = document.getElementById('emergencyNeedErrorModalBody');
+            const emergencyForm = document.getElementById('emergencyNeedForm');
+            const emergencyMessage = document.getElementById('emergencyMessage');
+            const emergencyExpectedDate = document.getElementById('emergencyExpectedDate');
+            const emergencyProductName = document.getElementById('emergencyProductName');
+            const calendarIconBtn = document.getElementById('calendarIconBtn');
+            let flatpickrInstance = null;
+            if (calendarIconBtn && emergencyExpectedDate) {
+                flatpickrInstance = flatpickr(emergencyExpectedDate, {
+                    dateFormat: 'Y-m-d',
+                    minDate: 'today',
+                    allowInput: true,
+                    disableMobile: true,
+                    theme: 'material_blue'
+                });
+                calendarIconBtn.addEventListener('click', function () {
+                    flatpickrInstance.open();
+                });
+            }
+            const myRequestBtn = document.getElementById('showMyEmergencyRequestBtn');
+            const showFormBtn = document.getElementById('showEmergencyFormBtn');
+            const statusCard = document.getElementById('studentEmergencyNeedStatus');
+            const statusModal = new bootstrap.Modal(document.getElementById('emergencyNeedStatusModal'));
+            const statusModalBody = document.getElementById('emergencyNeedStatusModalBody');
+            if (emergencyBtn) {
+                emergencyBtn.addEventListener('click', function () {
+                    emergencyOptionsModal.show();
+                });
+            }
+            if (showFormBtn) {
+                showFormBtn.addEventListener('click', function () {
+                    emergencyMessage.value = '';
+                    emergencyExpectedDate.value = '';
+                    emergencyProductName.value = '';
+                    emergencyForm.classList.remove('was-validated');
+                    emergencyOptionsModal.hide();
+                    emergencyFormModal.show();
+                });
+            }
+            if (myRequestBtn) {
+                myRequestBtn.addEventListener('click', async function () {
+                    // Fetch and show all user's emergency requests in modal
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    if (user && (user._id || user.id)) {
+                        try {
+                            const res = await fetch('http://localhost:5000/api/emergency-need');
+                            const allRequests = await res.json();
+                            const myRequests = allRequests.filter(r => (r.user?._id === user._id || r.user?._id === user.id || r.user === user._id || r.user === user.id));
+                            if (myRequests.length > 0) {
+                                const statusMap = { active: 'Pending', accepted: 'Accepted', rejected: 'Rejected', resolved: 'Resolved' };
+                                statusModalBody.innerHTML = myRequests.map(req => {
+                                    let availabilityHtml = `<span class="badge bg-secondary">${req.productStatus || 'Unknown'}</span>`;
+                                    if (req.productStatus === 'available') {
+                                        availabilityHtml = `
+                                            <span class="badge bg-success">Item is available</span>
+                                            <button class="btn btn-sm btn-primary ms-2" onclick="scrollToProduct('${req.productId}')">View Product</button>
+                                        `;
+                                    }
+
+                                    return `
+                                    <div class="border rounded p-3 mb-3">
+                                        <div class="mb-2"><b>Product Name:</b> ${req.productName}</div>
+                                        <div class="mb-2"><b>Message:</b> ${req.message}</div>
+                                        <div class="mb-2"><b>Expected Date:</b> ${req.expectedDate ? new Date(req.expectedDate).toLocaleDateString() : ''}</div>
+                                        <div class="mb-2"><b>Status:</b> <span class="badge bg-${req.status === 'accepted' ? 'success' : req.status === 'rejected' ? 'danger' : 'warning'}">${statusMap[req.status] || req.status}</span></div>
+                                        <div class="mb-2 d-flex align-items-center"><b>Product Availability:</b> ${availabilityHtml}</div>
+                                    </div>
+                                `}).join('');
+                            } else {
+                                statusModalBody.innerHTML = `<div class='alert alert-info'><i class='fa fa-info-circle me-2'></i>No emergency need request found.</div>`;
+                            }
+                        } catch (err) {
+                            statusModalBody.innerHTML = `<div class='alert alert-danger'><i class='fa fa-times-circle me-2'></i>Failed to load your emergency requests.</div>`;
+                        }
+                    } else {
+                        statusModalBody.innerHTML = `<div class='alert alert-warning'><i class='fa fa-user me-2'></i>Please log in to view your emergency requests.</div>`;
+                    }
+                    emergencyOptionsModal.hide();
+                    statusModal.show();
+                });
+            }
+            if (emergencyForm) {
+                emergencyForm.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (!emergencyMessage.value.trim() || !emergencyExpectedDate.value || !emergencyProductName.value.trim()) {
+                        if (!emergencyProductName.value.trim()) emergencyProductName.classList.add('is-invalid');
+                        if (!emergencyMessage.value.trim()) emergencyMessage.classList.add('is-invalid');
+                        if (!emergencyExpectedDate.value) emergencyExpectedDate.classList.add('is-invalid');
+                        emergencyForm.classList.add('was-validated');
+                        return;
+                    } else {
+                        emergencyProductName.classList.remove('is-invalid');
+                        emergencyMessage.classList.remove('is-invalid');
+                        emergencyExpectedDate.classList.remove('is-invalid');
+                    }
+                    // Get logged-in user
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    if (!user || !(user._id || user.id)) {
+                        emergencyFormModal.hide();
+                        emergencyErrorModalBody.innerHTML = 'Please log in to send an emergency alert.';
+                        emergencyErrorModal.show();
+                        setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+                        return;
+                    }
+                    try {
+                        const response = await fetch('http://localhost:5000/api/emergency-need', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                user: user._id || user.id,
+                                productName: emergencyProductName.value.trim(),
+                                message: emergencyMessage.value.trim(),
+                                expectedDate: emergencyExpectedDate.value
+                            })
+                        });
+                        if (response.ok) {
+                            emergencyFormModal.hide();
+                            emergencySuccessModal.show();
+                        } else {
+                            const data = await response.json();
+                            emergencyFormModal.hide();
+                            emergencyErrorModalBody.innerHTML = data.error || 'Failed to send emergency alert.';
+                            emergencyErrorModal.show();
+                        }
+                    } catch (err) {
+                        emergencyFormModal.hide();
+                        emergencyErrorModalBody.innerHTML = 'Failed to send emergency alert. Please try again.';
+                        emergencyErrorModal.show();
+                    }
+                });
+            }
+        });
+
+        // Show all other students' emergency needs
+        async function loadOtherEmergencyNeeds() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const container = document.getElementById('otherEmergencyNeedsRow');
+            if (!container) return;
+            try {
+                const res = await fetch('http://localhost:5000/api/emergency-need');
+                const allRequests = await res.json();
+                // Exclude current user's requests
+                const others = allRequests.filter(r => !user || !(r.user?._id === user._id || r.user?._id === user.id || r.user === user._id || r.user === user.id));
+                if (others.length === 0) {
+                    container.innerHTML = `<div class='col-12'><div class='alert alert-info'><i class='fa fa-info-circle me-2'></i>No emergency needs from other students at the moment.</div></div>`;
+                    return;
+                }
+                container.innerHTML = others.map(req => `
+                    <div class="col-md-4 mb-4">
+                      <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                          <h5 class="card-title mb-2"><i class="fa fa-user-circle me-2 text-primary"></i>${req.user?.name || 'Student'}</h5>
+                          <p class="card-text mb-2"><b>Product Name:</b> ${req.productName}</p>
+                          <p class="card-text mb-2"><b>Description:</b> ${req.message}</p>
+                          <p class="card-text mb-2"><b>Needed By:</b> ${req.expectedDate ? new Date(req.expectedDate).toLocaleDateString() : ''}</p>
+                          <div class="d-grid gap-2 mt-3">
+                            <a href="lend-resource.html" class="btn btn-outline-primary"><i class="fa fa-hand-holding-heart me-2"></i>Lend Item</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                container.innerHTML = `<div class='col-12'><div class='alert alert-danger'><i class='fa fa-times-circle me-2'></i>Failed to load emergency needs.</div></div>`;
+            }
+        }
+        loadOtherEmergencyNeeds();
+    </script>
+    <script>
+        // Global function for showing the image modal
+        window.showProductImageModal = function (imgUrl, event) {
+            if (event) event.stopPropagation();
+            const modalImg = document.getElementById('productImageModalImg');
+            modalImg.src = imgUrl;
+            const modal = new bootstrap.Modal(document.getElementById('productImageModal'));
+            modal.show();
+        };
+
+        // Function to scroll to and highlight a product
+        function scrollToProduct(productId, hideModal = true) {
+            if (hideModal) {
+                const statusModalEl = document.getElementById('emergencyNeedStatusModal');
+                if (statusModalEl) {
+                    const statusModal = bootstrap.Modal.getInstance(statusModalEl);
+                    if (statusModal) {
+                        statusModal.hide();
+                    }
+                }
+            }
+
+            const productCard = document.getElementById(`product-${productId}`);
+            if (productCard) {
+                productCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const card = productCard.querySelector('.card');
+                if (card) {
+                    card.style.transition = 'box-shadow 0.3s ease, border 0.3s ease';
+                    card.style.border = '2px solid var(--primary-color)';
+                    card.style.boxShadow = '0 0 15px rgba(74, 111, 165, 0.5)';
+                    setTimeout(() => {
+                        card.style.border = '';
+                        card.style.boxShadow = '';
+                    }, 3000);
+                }
+            } else {
+                // If card is not found, it's likely due to filters or pagination.
+                // Reload the page with the productId which will trigger the scroll.
+                window.location.href = `resources.html?productId=${productId}`;
+            }
+        }
+    </script>
+</body>
+
+</html>

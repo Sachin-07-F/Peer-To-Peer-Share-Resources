@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat with Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary-color: #4a6fa5;
+      --secondary-color: #166088;
+      --accent-color: #4fc3f7;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+    }
+    body {
+      font-family: "Poppins", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+    .navbar {
+      background-color: var(--primary-color);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .navbar.scrolled {
+      background-color: rgba(74, 111, 165, 0.95);
+      backdrop-filter: blur(10px);
+    }
+    .navbar-brand {
+      font-weight: 700;
+      color: white;
+      font-size: 1.5rem;
+    }
+    .navbar-brand img {
+      height: 40px;
+      margin-right: 10px;
+      transition: transform 0.3s ease;
+    }
+    .navbar-brand:hover img {
+      transform: rotate(15deg);
+    }
+    .nav-link {
+      color: rgba(255, 255, 255, 0.85);
+      font-weight: 500;
+      position: relative;
+    }
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: 0;
+      left: 0;
+      background-color: white;
+      transition: width 0.3s ease;
+    }
+    .nav-link:hover::after {
+      width: 100%;
+    }
+    .nav-link:hover {
+      color: white;
+    }
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary:hover {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .btn-outline-primary {
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+      transition: all 0.3s ease;
+    }
+    .btn-outline-primary:hover {
+      background-color: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; }
+    #chat {
+      max-width: 700px;
+      width: 100%;
+      margin: 48px auto;
+      background: #f8fafd;
+      border-radius: 18px;
+      box-shadow: 0 6px 32px 0 rgba(74,111,165,0.10), 0 1.5px 4px 0 rgba(74,111,165,0.08);
+      padding: 36px 40px 28px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    #messages {
+      height: 520px;
+      overflow-y: auto;
+      border: none;
+      padding: 24px 12px 24px 0;
+      margin-bottom: 18px;
+      background: transparent;
+      font-size: 1.13em;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .msg {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      max-width: 75%;
+    }
+    .me {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+    .other {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+    .msg .bubble {
+      padding: 14px 22px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #e3f2fd 80%, #bbdefb 100%);
+      color: #1976d2;
+      font-size: 1.08em;
+      box-shadow: 0 2px 8px #0001;
+      margin-bottom: 2px;
+      word-break: break-word;
+      transition: background 0.2s;
+      max-width: 100%;
+    }
+    .other .bubble {
+      background: linear-gradient(135deg, #f1f8e9 80%, #c8e6c9 100%);
+      color: #388e3c;
+    }
+    .meta {
+      font-size: 0.97em;
+      color: #888;
+      margin-bottom: 2px;
+    }
+    .timestamp {
+      font-size: 0.89em;
+      color: #aaa;
+      margin-left: 8px;
+    }
+    #inputArea {
+      display: flex;
+      gap: 12px;
+      background: #f4f6fb;
+      border-radius: 14px;
+      padding: 10px 16px;
+      box-shadow: 0 1px 4px #0001;
+      align-items: center;
+    }
+    #inputArea input {
+      flex: 1;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1px solid #d0d7e2;
+      font-size: 1.08em;
+      background: #fff;
+      outline: none;
+      transition: border 0.2s;
+    }
+    #inputArea input:focus {
+      border: 1.5px solid #4a6fa5;
+      background: #f7faff;
+    }
+    #inputArea button {
+      padding: 12px 28px;
+      border-radius: 10px;
+      background: #4a6fa5;
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1.08em;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #inputArea button:hover {
+      background: #166088;
+    }
+  </style>
+  <style>
+    .admin-status-badge {
+      display: inline-block;
+      min-width: 90px;
+      padding: 4px 14px;
+      font-size: 0.98em;
+      border-radius: 16px;
+      background: #f1f1f1;
+      color: #888;
+      font-weight: 500;
+      vertical-align: middle;
+      margin-left: 6px;
+      border: 1.5px solid #e0e0e0;
+      box-shadow: 0 1px 4px #0001;
+      transition: background 0.2s, color 0.2s;
+    }
+    .admin-status-badge.online {
+      background: #e8f5e9;
+      color: #43a047;
+      border-color: #b2dfdb;
+    }
+    .admin-status-badge.offline {
+      background: #f9fbe7;
+      color: #888;
+      border-color: #f0f0f0;
+    }
+
+
+
+    /* Add this to your CSS */
+body.dark-mode {
+  background-color: #121212;
+  color: #f0f0f0;
+}
+
+body.dark-mode #chat {
+  background: #1e1e1e;
+  box-shadow: 0 6px 32px 0 rgba(0,0,0,0.3);
+}
+
+body.dark-mode #messages {
+  color: #f0f0f0;
+}
+
+body.dark-mode .bubble {
+  background: linear-gradient(135deg, #2d3748 80%, #1a202c 100%) !important;
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode #inputArea {
+  background: #2d3748;
+}
+
+body.dark-mode #inputArea input {
+  background: #2d3748;
+  color: #f0f0f0;
+  border-color: #4a5568;
+}
+
+body.dark-mode #inputArea input:focus {
+  background: #2d3748;
+  border-color: #4a6fa5;
+}
+
+body.dark-mode .admin-status-badge {
+  background: #2d3748;
+  color: #e2e8f0;
+  border-color: #4a5568;
+}
+
+body.dark-mode .admin-status-badge.online {
+  background: #2f5d32;
+  color: #81c784;
+  border-color: #4a5568;
+}
+
+body.dark-mode hr {
+  border-color: #4a5568;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 768px) {
+  body {
+    font-size: 1rem;
+  }
+
+  #chat {
+    margin: 16px;
+    padding: 20px;
+  }
+
+  .chat-admin-title {
+    font-size: 1.5rem;
+  }
+
+  #messages {
+    height: 400px;
+    padding: 16px 8px 16px 0;
+    font-size: 1rem;
+  }
+
+  .msg .bubble {
+    font-size: 1rem;
+    padding: 12px 16px;
+  }
+
+  .timestamp {
+    font-size: 0.8rem;
+  }
+
+  .meta {
+    font-size: 0.85rem;
+  }
+
+  #inputArea {
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+
+  }
+
+  #inputArea input {
+    font-size: 1rem;
+    padding: 12px;
+    width: 100%;
+  }
+
+  #inputArea button {
+    width: 100%;
+    font-size: 1rem;
+    padding: 12px;
+    justify-content: center;
+  }
+
+  .admin-status-badge {
+    font-size: 0.85rem;
+    padding: 4px 10px;
+  }
+
+  .navbar .nav-link {
+    font-size: 1rem;
+  }
+
+  .navbar-brand {
+    font-size: 1.25rem;
+  }
+
+  .navbar-toggler {
+    font-size: 1rem;
+  }
+
+  .dropdown-menu {
+    font-size: 0.95rem;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+  </style>
+  <style>
+    .chat-admin-title {
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      letter-spacing: 0.5px;
+      background: url('https://www.transparenttextures.com/patterns/geometry2.png'), linear-gradient(120deg, #4a6fa5 60%, #4fc3f7 100%);
+      background-size: cover;
+      background-repeat: repeat;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      text-fill-color: transparent;
+      padding: 0 2px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar copied from index.html -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="index.html">
+        <img src="https://png.pngtree.com/png-vector/20190425/ourmid/pngtree-vector-male-student-icon-png-image_992053.jpg" alt="CampusShare Logo" class="rounded-circle" style="height:40px;margin-right:10px;">
+        <span>Peer To Peer Share</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="resources.html">Browse Resources</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="my-resources.html">My Resources</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="lend-resource.html">Lend Item</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link notification-badge" href="#">
+              <i class="fas fa-bell"></i>
+              <span class="badge-count">3</span>
+            </a>
+          </li>
+          <li class="nav-item ms-2" id="loginNavItem">
+            <!-- Login/Signup or user dropdown will be injected here by JS -->
+          </li>
+          <li class="nav-item ms-2">
+            <button class="btn btn-outline-light" id="darkModeToggle">
+              <i class="fas fa-moon"></i>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+  <div id="chat">
+      <div class="chat-header-bg" style="display: flex; align-items: center; gap: 12px; margin-bottom: 0; position: relative; padding: 18px 24px 18px 24px; border-radius: 16px 16px 0 0; overflow: hidden;">
+        <div style="position: absolute; inset: 0; z-index: 0; background: url('https://www.transparenttextures.com/patterns/geometry2.png'), linear-gradient(120deg, #e0e7ef 60%, #f5fafd 100%); opacity: 0.25;"></div>
+        <h3 class="chat-admin-title" style="margin: 0; position: relative; z-index: 1;">Chat with Admin</h3>
+        <span id="adminStatus" class="admin-status-badge" style="position: relative; z-index: 1;"></span>
+      </div>
+    <hr style="border: none; border-top: 1.5px solid #e0e4ea; margin: 12px 0 18px 0;">
+    <div id="messages"></div>
+    <form id="msgForm" autocomplete="off">
+      <div id="inputArea">
+        <input type="text" id="msgInput" placeholder="Type a message..." autocomplete="off" />
+        <button id="sendBtn" type="submit"><i class="fa fa-paper-plane"></i> Send</button>
+      </div>
+    </form>
+  </div>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    // Get logged-in user from localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+      alert('Please login to use chat.');
+      window.location.href = 'login.html';
+    }
+    const myId = user.id;
+    let adminId = null;
+
+    // Fetch admin user from backend
+    fetch('http://localhost:5000/api/admin-user')
+      .then(res => res.json())
+      .then(admin => {
+        if (!admin || !admin._id) {
+          alert('No admin found.');
+          return;
+        }
+        adminId = admin._id;
+        startChat();
+      });
+
+    function startChat() {
+      const socket = io('http://localhost:5000');
+      socket.emit('join', myId); // Only join the user's own room
+
+      const messagesDiv = document.getElementById('messages');
+      const msgInput = document.getElementById('msgInput');
+      const sendBtn = document.getElementById('sendBtn');
+      const msgForm = document.getElementById('msgForm');
+
+      // Mark all admin messages as seen by user
+
+      // Fetch previous messages
+      fetch(`http://localhost:5000/api/chat/${myId}/${adminId}`)
+        .then(res => res.json())
+        .then(messages => {
+          messages.forEach(msg => appendMsg(msg));
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+      // Send message on form submit
+      msgForm.onsubmit = function(e) {
+        e.preventDefault();
+        sendMessage();
+      };
+
+      function sendMessage() {
+        const text = msgInput.value.trim();
+        if (!text) return;
+        socket.emit('chatMessage', { senderId: myId, receiverId: adminId, message: text });
+        msgInput.value = '';
+      }
+
+      socket.on('chatMessage', msg => {
+        const existing = Array.from(messagesDiv.children).some(div => {
+          return div.dataset && div.dataset.ts === String(new Date(msg.timestamp).getTime()) && div.dataset.sender === msg.senderId;
+        });
+        if (existing) return;
+        if (
+          (msg.senderId === myId && msg.receiverId === adminId) ||
+          (msg.senderId === adminId && msg.receiverId === myId)
+        ) {
+          appendMsg(msg);
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+          // Only mark as seen if the page is visible and the message is from admin
+          if (msg.senderId === adminId && msg.receiverId === myId && document.visibilityState === 'visible') {
+            markAdminMessagesSeenIfVisible();
+          }
+        }
+      });
+      // Listen for real-time blue tick update when admin sees messages
+      socket.on('messagesSeenByAdmin', ({ adminId: seenAdminId }) => {
+        if (seenAdminId === adminId) {
+          fetch(`http://localhost:5000/api/chat/${myId}/${adminId}`)
+            .then(res => res.json())
+            .then(messages => {
+              messagesDiv.innerHTML = '';
+              messages.forEach(msg => appendMsg(msg));
+              messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+        }
+      });
+
+      function appendMsg(msg) {
+        const div = document.createElement('div');
+        const isMe = msg.senderId === myId;
+        let ticks = '';
+        if (isMe) {
+          if (msg.seenByAdmin) {
+            ticks = '<span style="color:#2196f3;margin-left:6px;" title="Seen">&#10003;&#10003;</span>';
+          } else if (msg.deliveredToReceiver) {
+            ticks = '<span style="color:#888;margin-left:6px;" title="Delivered">&#10003;&#10003;</span>';
+          } else {
+            ticks = '<span style="color:#888;margin-left:6px;" title="Sent">&#10003;</span>';
+          }
+        }
+        div.className = 'msg ' + (isMe ? 'me' : 'other');
+        div.innerHTML = `
+          <div class="bubble">${msg.message}</div>
+          <div class="timestamp">${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ${ticks}</div>
+        `;
+        div.dataset.ts = String(new Date(msg.timestamp).getTime());
+        div.dataset.sender = msg.senderId;
+        messagesDiv.appendChild(div);
+      }
+    }
+
+    function markAdminMessagesSeenIfVisible() {
+      if (document.visibilityState === 'visible') {
+        fetch(`http://localhost:5000/api/mark-admin-seen/${adminId}/${myId}`, { method: 'PATCH' });
+      }
+    }
+
+    // When the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      markAdminMessagesSeenIfVisible();
+    });
+
+    // When the page/tab becomes visible
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        markAdminMessagesSeenIfVisible();
+      }
+    });
+
+    let adminOnline = false;
+    let adminLastSeen = null;
+
+    function timeAgo(date) {
+      if (!date) return '';
+      const now = new Date();
+      const diff = Math.floor((now - new Date(date)) / 1000);
+      if (diff < 60) return 'just now';
+      if (diff < 3600) return Math.floor(diff/60) + ' min ago';
+      if (diff < 86400) return Math.floor(diff/3600) + ' hr ago';
+      return Math.floor(diff/86400) + ' days ago';
+    }
+
+    function updateAdminStatusUI() {
+      const statusDiv = document.getElementById('adminStatus');
+      if (!statusDiv) return;
+      if (adminOnline) {
+        statusDiv.textContent = 'Online';
+        statusDiv.className = 'admin-status-badge online';
+      } else if (adminLastSeen) {
+        statusDiv.textContent = 'Last seen ' + timeAgo(adminLastSeen);
+        statusDiv.className = 'admin-status-badge offline';
+      } else {
+        statusDiv.textContent = 'Offline';
+        statusDiv.className = 'admin-status-badge offline';
+      }
+    }
+
+    function fetchAdminStatus() {
+      if (!adminId) return;
+      fetch('http://localhost:5000/api/user-status/' + adminId)
+        .then(res => res.json())
+        .then(data => {
+          adminOnline = data.online;
+          adminLastSeen = data.lastSeen;
+          updateAdminStatusUI();
+        });
+    }
+
+    // Listen for admin's online status
+    let socketForStatus = null;
+    function setupAdminStatusSocket() {
+      if (socketForStatus) return;
+      socketForStatus = io('http://localhost:5000');
+      socketForStatus.emit('join', myId); // Join as user
+      socketForStatus.on('userOnlineStatus', ({ userId, isOnline }) => {
+        if (userId === adminId) {
+          adminOnline = isOnline;
+          if (!isOnline) {
+            fetchAdminStatus();
+          } else {
+            updateAdminStatusUI();
+          }
+        }
+      });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      setupAdminStatusSocket();
+      // Fetch admin status on page load
+      setTimeout(fetchAdminStatus, 500); // Wait for adminId to be set
+    });
+
+
+
+
+
+
+    // Dark mode toggle functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const darkModeToggle = document.getElementById('darkModeToggle');
+  const darkModeIcon = darkModeToggle.querySelector('i');
+  
+  // Check for saved user preference
+  const isDarkMode = localStorage.getItem('darkMode') === 'true';
+  
+  // Apply dark mode if enabled
+  if (isDarkMode) {
+    document.body.classList.add('dark-mode');
+    darkModeIcon.classList.replace('fa-moon', 'fa-sun');
+  }
+  
+  // Toggle dark mode on button click
+  darkModeToggle.addEventListener('click', function() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    
+    // Update icon
+    if (isDark) {
+      darkModeIcon.classList.replace('fa-moon', 'fa-sun');
+    } else {
+      darkModeIcon.classList.replace('fa-sun', 'fa-moon');
+    }
+    
+    // Save preference
+    localStorage.setItem('darkMode', isDark);
+  });
+});
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Navbar user dropdown/login logic from index.html
+    document.addEventListener('DOMContentLoaded', function() {
+      function updateNavbarAuth() {
+        const navItem = document.getElementById('loginNavItem');
+        navItem.innerHTML = '';
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user && user.name) {
+          navItem.innerHTML = `
+            <div class="dropdown">
+              <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user me-1"></i>${user.name}
+                <span style="display:inline-block; margin-left:6px; font-size:0.8em; color: #fff; vertical-align: middle;">&#9660;</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="${user.role === 'admin' ? 'admin-dashboard.html' : 'student-dashboard.html'}">Dashboard</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" id="logoutDropdownBtn">Logout</a></li>
+              </ul>
+            </div>
+          `;
+          setTimeout(() => {
+            const logoutBtn = document.getElementById('logoutDropdownBtn');
+            if (logoutBtn) {
+              logoutBtn.onclick = function(e) {
+                e.preventDefault();
+                localStorage.removeItem('user');
+                location.reload();
+              };
+            }
+          }, 100);
+        } else {
+          navItem.innerHTML = `
+            <a class="btn btn-outline-light me-2" href="login.html">Login</a>
+            <a class="btn btn-primary" href="login.html#student-signup">Sign Up</a>
+          `;
+        }
+      }
+      updateNavbarAuth();
+    });
+  </script>
+</body>
+</html>

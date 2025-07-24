@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard | CampusShare</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <style>
+    body { background: #f8f9fa; font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .dashboard-container { max-width: 1100px; margin: 40px auto; background: #fff; padding: 2.5rem 2rem; border-radius: 18px; box-shadow: 0 4px 24px rgba(74,111,165,0.10);}
+    .product-card { margin-bottom: 2rem; border-radius: 16px; box-shadow: 0 2px 12px rgba(74,111,165,0.08); transition: transform 0.3s, box-shadow 0.3s; animation: fadeInUp 0.7s cubic-bezier(.39,.575,.56,1) both; }
+    .product-card:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 8px 32px rgba(74,111,165,0.13); }
+    .product-img { border-radius: 16px 16px 0 0; height: 180px; object-fit: cover; background: #e9ecef; }
+    .order-table th, .order-table td { vertical-align: middle; font-size: 1rem; }
+    /* Enhanced My Requests Table Styling */
+    /* Modern My Requests Card Layout */
+    #myRequestsCards {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .request-card {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(74,111,165,0.10);
+      border: 2.5px solid #4a6fa5;
+      padding: 1.2rem 1.5rem;
+      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+      animation: slideInCard 0.7s cubic-bezier(.39,.575,.56,1) both;
+      position: relative;
+    }
+    .request-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 8px 32px rgba(74,111,165,0.13);
+      border-color: #166088;
+    }
+    @keyframes slideInCard {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: none; }
+    }
+    .request-card-img {
+      width: 90px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-right: 1.5rem;
+      box-shadow: 0 2px 12px #4a6fa51a;
+      background: #e9ecef;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .request-card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .request-card-title {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #4a6fa5;
+      margin-bottom: 0.1rem;
+    }
+    .request-card-status {
+      font-size: 1.04rem;
+      font-weight: 600;
+      color: #166088;
+      margin-bottom: 0.2rem;
+    }
+    .request-card-badges span {
+      margin-right: 0.5rem;
+      margin-top: 0.2rem;
+      display: inline-block;
+    }
+    .request-card-action {
+      margin-left: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.5rem;
+    }
+    .request-card-map-btn {
+      min-width: 120px;
+    }
+    @media (max-width: 700px) {
+      .request-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem 0.7rem;
+      }
+      .request-card-img {
+        margin-right: 0;
+        margin-bottom: 0.7rem;
+      }
+      .request-card-action {
+        margin-left: 0;
+        align-items: flex-start;
+      }
+    }
+    .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite linear; }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .skeleton-box { height: 220px; border-radius: 16px; margin-bottom: 2rem; }
+    .fadeIn { animation: fadeIn 0.7s cubic-bezier(.39,.575,.56,1) both; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(30px);} to { opacity: 1; transform: none; } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px);} to { opacity: 1; transform: none; } }
+    .btn-anim { transition: transform 0.2s, box-shadow 0.2s; }
+    .btn-anim:hover { transform: scale(1.05); box-shadow: 0 2px 8px rgba(74,111,165,0.13); }
+    .table thead th { background: #f3f6fa; font-weight: 600; }
+    .main-title { font-size: 2.2rem; font-weight: 700; color: #4a6fa5; letter-spacing: 1px; margin-bottom: 1.5rem; }
+    .section-title { font-size: 1.3rem; font-weight: 600; color: #166088; margin-bottom: 1rem; }
+    .badge-info { background: #e3f2fd; color: #166088; font-weight: 500; }
+
+    /* Navbar Styles */
+    .navbar {
+      background-color: #4a6fa5;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      color: white;
+    }
+    
+    .navbar-brand img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    
+    .nav-link {
+      color: rgba(255,255,255,0.85);
+      font-weight: 500;
+    }
+    
+    .nav-link:hover {
+      color: white;
+    }
+    
+    .btn-outline-light {
+      color: rgba(255,255,255,0.85);
+      border-color: rgba(255,255,255,0.85);
+    }
+    
+    .btn-outline-light:hover {
+      background-color: rgba(255,255,255,0.1);
+      color: white;
+      border-color: white;
+    }
+
+    /* Notification Styles */
+    .notification-badge {
+      position: relative;
+    }
+    
+    .badge-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: #dc3545;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+
+    .notification-dropdown {
+      min-width: 300px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .notification-header {
+      background-color: #f8f9fa;
+    }
+
+    .notification-item {
+      padding: 1rem;
+      border-bottom: 1px solid #e9ecef;
+      transition: background-color 0.2s;
+    }
+
+    .notification-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .notification-item.unread {
+      background-color: #e3f2fd;
+    }
+
+    .notification-footer {
+      background-color: #f8f9fa;
+    }
+
+    /* Floating animation for logo */
+    .floating {
+      animation: floating 3s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    /* Animated Large Distance Display */
+    #distanceResult {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: #4a6fa5;
+      text-align: center;
+      margin-bottom: 1.1rem;
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 0.5s cubic-bezier(.39,.575,.56,1), transform 0.5s cubic-bezier(.39,.575,.56,1);
+    }
+    #distanceResult.show {
+      opacity: 1;
+      transform: scale(1);
+      animation: popInDistance 0.7s cubic-bezier(.39,.575,.56,1);
+    }
+    @keyframes popInDistance {
+      0% { opacity: 0; transform: scale(0.7); }
+      60% { opacity: 1; transform: scale(1.15); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    /* Animated Gradient Border for Request Cards */
+    .request-card {
+      position: relative;
+      z-index: 1;
+    }
+    .request-card::before {
+      content: '';
+      position: absolute;
+      top: -3px; left: -3px; right: -3px; bottom: -3px;
+      border-radius: 20px;
+      z-index: -1;
+      background: linear-gradient(270deg, #ffb6b9, #a0c4ff, #ffb6b9);
+      background-size: 600% 600%;
+      animation: animatedBorder 3s ease-in-out infinite;
+      box-shadow: 0 4px 24px rgba(74,111,165,0.10);
+    }
+    @keyframes animatedBorder {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .request-card {
+      border: 3px solid transparent !important;
+    }
+    .returned-stamp {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-15deg);
+      z-index: 10;
+      pointer-events: none;
+    }
+    .returned-stamp span {
+      display: block;
+      padding: 8px 25px;
+      background-color: #28a745;
+      color: white;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      border-radius: 8px;
+      border: 3px solid white;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+      font-family: 'Poppins', sans-serif;
+    }
+    .digital-wallet-card {
+      background: rgba(255,255,255,0.18);
+      border-radius: 18px;
+      padding: 1.1rem 1.2rem 0.8rem 1.2rem;
+      color: #222;
+      margin-bottom: 1.2rem;
+      box-shadow: 0 8px 32px #185a9d33;
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.3s, transform 0.3s;
+      max-width: 400px;
+      backdrop-filter: blur(6px);
+      border: 1.5px solid #e6b80033;
+      background-image: linear-gradient(120deg, #fffbe7 0%, #ffe082 100%);
+      animation: walletFadeIn 0.9s cubic-bezier(.39,.575,.56,1);
+    }
+    @keyframes walletFadeIn {
+      from { opacity: 0; transform: translateY(-30px) scale(0.95);}
+      to { opacity: 1; transform: none;}
+    }
+    .wallet-coin {
+      display: inline-block;
+      vertical-align: middle;
+      animation: coinSpin 1.2s cubic-bezier(.39,.575,.56,1);
+    }
+    @keyframes coinSpin {
+      0% { transform: rotateY(0deg) scale(0.7);}
+      60% { transform: rotateY(360deg) scale(1.15);}
+      100% { transform: rotateY(360deg) scale(1);}
+    }
+    .wallet-points {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: #e6b800;
+      background: rgba(255,255,255,0.22);
+      border-radius: 8px;
+      padding: 0.1em 0.6em;
+      display: inline-flex;
+      align-items: center;
+      margin-top: 0.1em;
+      box-shadow: 0 2px 8px #ffe08244;
+    }
+    .wallet-avatar {
+      font-size: 2.1rem;
+      color: #fff;
+      background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 12px #2193b033;
+    }
+    .wallet-username { font-size: 1.08rem; }
+    .wallet-email { font-size: 0.95rem; }
+    .wallet-points-label { font-size: 1rem; }
+    @media (max-width: 600px) {
+      .digital-wallet-card { padding: 0.7rem 0.4rem; }
+      .wallet-avatar { width: 28px; height: 28px; font-size: 1.3rem; }
+      .wallet-points { font-size: 1rem; }
+    }
+    .borrowed-stamp {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-8deg);
+      z-index: 10;
+      pointer-events: none;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.93;
+      filter: drop-shadow(0 2px 8px #2196f344);
+    }
+    .borrowed-stamp svg {
+      width: 120px;
+      height: 120px;
+      display: block;
+    }
+    .borrowed-stamp-rect {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-15deg);
+      z-index: 10;
+      pointer-events: none;
+    }
+    .borrowed-stamp-rect span {
+      display: block;
+      padding: 8px 25px;
+      background-color: #2196f3;
+      color: white;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      border-radius: 8px;
+      border: 3px solid white;
+      box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+      font-family: 'Poppins', sans-serif;
+    }
+
+
+
+
+
+
+
+
+
+    /* Dark Mode Styles */
+body.dark-mode {
+  background-color: #121212;
+  color: #f0f0f0;
+}
+
+body.dark-mode .dashboard-container {
+  background: #1e1e1e;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .product-card,
+body.dark-mode .request-card {
+  background: #2d3748;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .product-card:hover,
+body.dark-mode .request-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .card,
+body.dark-mode .modal-content {
+  background: #2d3748;
+  color: #f0f0f0;
+}
+
+body.dark-mode .card-title,
+body.dark-mode .section-title,
+body.dark-mode .main-title {
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode .card-text,
+body.dark-mode .text-muted {
+  color: #a0aec0 !important;
+}
+
+body.dark-mode hr {
+  border-color: #4a5568;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+  background-color: #2d3748;
+  border-color: #4a5568;
+  color: #f0f0f0;
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+  background-color: #2d3748;
+  border-color: #4a6fa5;
+  color: #f0f0f0;
+}
+
+body.dark-mode .digital-wallet-card {
+  background-image: linear-gradient(120deg, #2d3748 0%, #4a5568 100%);
+  border-color: #4a5568;
+  color: #f0f0f0;
+}
+
+body.dark-mode .wallet-points {
+  color: #e6b800;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .navbar {
+  background-color: #1a202c;
+}
+
+body.dark-mode .nav-link {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+body.dark-mode .nav-link:hover {
+  color: white;
+}
+
+body.dark-mode .btn-outline-light {
+  color: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+body.dark-mode .btn-outline-light:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-color: white;
+}
+
+body.dark-mode .dropdown-menu {
+  background-color: #2d3748;
+  border-color: #4a5568;
+}
+
+body.dark-mode .dropdown-item {
+  color: #f0f0f0;
+}
+
+body.dark-mode .dropdown-item:hover {
+  background-color: #4a5568;
+  color: #f0f0f0;
+}
+
+body.dark-mode .notification-dropdown {
+  background-color: #2d3748;
+  border-color: #4a5568;
+}
+
+body.dark-mode .notification-header,
+body.dark-mode .notification-footer {
+  background-color: #1a202c;
+  border-color: #4a5568;
+}
+
+body.dark-mode .notification-item {
+  border-color: #4a5568;
+}
+
+body.dark-mode .notification-item.unread {
+  background-color: rgba(74, 111, 165, 0.2);
+}
+
+body.dark-mode .badge-info {
+  background: rgba(74, 111, 165, 0.2);
+  color: #a0c4ff;
+}
+
+body.dark-mode .alert {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-color: #4a5568;
+}
+
+body.dark-mode .toast {
+  background-color: #2d3748 !important;
+  border-color: #4a5568;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Add this to your style section */
+@media (max-width: 767.98px) {
+  .product-card {
+    margin-bottom: 1.5rem;
+  }
+
+ 
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .product-card {
+    margin-bottom: 1.25rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  #productsList > [class*="col-"] {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  .product-card {
+    margin-bottom: 1.5rem;
+    
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1199.98px) {
+  #productsList > [class*="col-"] {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (min-width: 1200px) {
+  #productsList > [class*="col-"] {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="navbar">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="index.html">
+        <img
+          src="https://png.pngtree.com/png-vector/20190425/ourmid/pngtree-vector-male-student-icon-png-image_992053.jpg"
+          alt="CampusShare Logo"
+          class="rounded-circle floating"
+        />
+        <span>Peer To Peer Share</span>
+      </a>
+
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="resources.html">Browse Resources</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="my-resources.html">My Resources</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="lend-resource.html">Lend Item</a>
+          </li>
+          <!-- <li class="nav-item dropdown">
+            <a
+              class="nav-link notification-badge dropdown-toggle"
+              href="#"
+              id="notificationDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="fas fa-bell"></i>
+              <span class="badge-count">2</span>
+            </a>
+            <div
+              class="notification-dropdown dropdown-menu dropdown-menu-end"
+              aria-labelledby="notificationDropdown"
+            >
+              <div class="notification-header p-3 border-bottom">
+                <h6 class="mb-0">Notifications (2)</h6>
+              </div>
+              <div class="notification-item unread">
+                <div class="d-flex">
+                  <div class="flex-shrink-0 me-3">
+                    <i class="fas fa-book text-primary"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <p class="mb-1">
+                      Your request for "Calculus Textbook" has been approved!
+                    </p>
+                    <small class="text-muted">2 minutes ago</small>
+                  </div>
+                </div>
+              </div>
+              <div class="notification-item unread">
+                <div class="d-flex">
+                  <div class="flex-shrink-0 me-3">
+                    <i class="fas fa-calculator text-success"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <p class="mb-1">
+                      Contact the lender to collect your TI-84 Calculator
+                    </p>
+                    <small class="text-muted">1 hour ago</small>
+                  </div>
+                </div>
+              </div>
+              <div class="notification-footer p-3 text-center border-top">
+                <a href="#" class="text-primary">View All Notifications</a>
+              </div>
+            </div>
+          </li> -->
+          <li class="nav-item ms-2" id="loginNavItem">
+            <!-- User info will be injected here by JS -->
+          </li>
+          <li class="nav-item ms-2">
+            <button class="btn btn-outline-light" id="darkModeToggle">
+              <i class="fas fa-moon"></i>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div id="walletSection" class="container my-4">
+    <div class="digital-wallet-card shadow-lg animate__animated animate__fadeInDown">
+      <div class="d-flex align-items-center">
+        <div class="wallet-avatar me-3">
+          <i class="fa fa-user-circle"></i>
+        </div>
+        <div>
+          <div class="wallet-username fw-bold" id="walletUsername"></div>
+          <div class="wallet-email text-muted" id="walletEmail"></div>
+        </div>
+        <div class="ms-auto text-end">
+          <div class="wallet-points-label">Total Points</div>
+          <div class="wallet-points" id="walletPoints">
+            <span class="wallet-coin me-2">
+              <svg width="32" height="32" viewBox="0 0 32 32">
+                <defs>
+                  <radialGradient id="coinGold" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#fffbe7"/>
+                    <stop offset="60%" stop-color="#ffe082"/>
+                    <stop offset="100%" stop-color="#ffb300"/>
+                  </radialGradient>
+                </defs>
+                <circle cx="16" cy="16" r="14" fill="url(#coinGold)" stroke="#e6b800" stroke-width="2"/>
+                <circle cx="16" cy="16" r="9" fill="none" stroke="#fffde4" stroke-width="1.5"/>
+                <text x="16" y="22" text-anchor="middle" font-size="14" font-weight="bold" fill="#e6b800" font-family="Arial">₹</text>
+              </svg>
+            </span>
+            <span id="walletPointsValue">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dashboard-container">
+    <h2 class="main-title text-center mb-4 fadeIn"><i class="fa fa-user-graduate me-2"></i>Welcome, Student</h2>
+    <div class="section-title"><i class="fa fa-boxes-stacked me-2"></i>Available Products/Resources</div>
+   <!-- code-1 -->
+    <!-- <div id="productsList" class="row">
+    
+      <div class="col-md-4"><div class="skeleton skeleton-box w-100"></div></div>
+      <div class="col-md-4"><div class="skeleton skeleton-box w-100"></div></div>
+      <div class="col-md-4"><div class="skeleton skeleton-box w-100"></div></div>
+    </div> -->
+
+
+    <div id="productsList" class="row g-3"> <!-- Added g-3 for consistent gutters -->
+  <!-- Shimmer skeletons -->
+  <div class="col-12 col-md-6 col-xl-4"><div class="skeleton skeleton-box w-100"></div></div>
+  <div class="col-12 col-md-6 col-xl-4"><div class="skeleton skeleton-box w-100"></div></div>
+  <div class="col-12 col-md-6 col-xl-4"><div class="skeleton skeleton-box w-100"></div></div>
+</div>
+
+    <hr class="my-4"/>
+    <div id="recommendedSection" class="mb-4">
+      <h4 class="mb-3"><i class="fa fa-magic me-2 text-success"></i>Recommended for You</h4>
+      <div class="row g-3" id="recommendedCards"></div>
+    </div>
+    <hr class="my-4"/>
+    <div class="section-title"><i class="fa fa-clipboard-list me-2"></i>My Requests (Orders)</div>
+    <div id="penaltyStatus" class="mb-3"></div>
+    <div id="myRequestsCards">
+      <!-- Cards will be rendered here by JS -->
+      <div class="skeleton skeleton-box w-100" style="height:70px;"></div>
+      <div class="skeleton skeleton-box w-100" style="height:70px;"></div>
+    </div>
+  </div>
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+    <div id="hotToast" class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true" style="display:none;">
+      <div class="d-flex">
+        <div class="toast-body" id="hotToastMsg">Toast message</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" onclick="document.getElementById('hotToast').style.display='none';"></button>
+      </div>
+    </div>
+  </div>
+  <!-- Modal for large image preview (global, always present) -->
+  <div class="modal fade" id="productImageModal" tabindex="-1" aria-labelledby="productImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background: transparent; box-shadow: none; border: none; position: relative;">
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-3 bg-white rounded-circle" data-bs-dismiss="modal" aria-label="Close" style="z-index:10;font-size:1.5rem;"></button>
+        <div class="modal-body d-flex justify-content-center align-items-center p-0">
+          <img id="productImageModalImg" src="" alt="Product" style="max-width: 90vw; max-height: 80vh; border-radius: 16px; box-shadow: 0 8px 32px #4a6fa51a; background: #fff;" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    // Check student login
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || user.role !== 'student') {
+      window.location.href = 'login.html';
+    }
+
+    // Navbar functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Dark mode toggle
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const icon = darkModeToggle.querySelector('i');
+        if (document.body.classList.contains('dark-mode')) {
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+          localStorage.setItem('darkMode', 'enabled');
+        } else {
+          icon.classList.remove('fa-sun');
+          icon.classList.add('fa-moon');
+          localStorage.setItem('darkMode', 'disabled');
+        }
+      });
+
+      // Check for saved dark mode preference
+      if (localStorage.getItem('darkMode') === 'enabled') {
+        document.body.classList.add('dark-mode');
+        darkModeToggle.querySelector('i').classList.remove('fa-moon');
+        darkModeToggle.querySelector('i').classList.add('fa-sun');
+      }
+
+      // Check if user is logged in and update navbar accordingly
+      const loginNavItem = document.getElementById('loginNavItem');
+      
+      if (user) {
+        // User is logged in, show user info and logout
+        loginNavItem.innerHTML = `
+          <div class="dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-user-graduate me-1"></i>${user.name}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="student-dashboard.html">Dashboard</a></li>
+              <li><a class="dropdown-item" href="my-resources.html">My Resources</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li>
+            </ul>
+          </div>
+        `;
+      } else {
+        // User is not logged in, redirect to login
+        window.location.href = 'login.html';
+      }
+    });
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem('user');
+      window.location.href = 'index.html';
+    }
+
+    // Hot toast function
+    function showHotToast(msg, type='primary') {
+      const toast = document.getElementById('hotToast');
+      const toastMsg = document.getElementById('hotToastMsg');
+      toastMsg.textContent = msg;
+      toast.className = `toast align-items-center text-white bg-${type} border-0 show`;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    // Fetch and display products
+    async function loadProducts() {
+      const res = await fetch('http://localhost:5000/api/products');
+      const products = await res.json();
+      
+      // Fetch student's requests to disable already requested items
+      const myRequestsRes = await fetch(`http://localhost:5000/api/myrequests/${user.id}`);
+      const myRequests = await myRequestsRes.json();
+      const requestedProductIds = new Set(myRequests.map(r => r.product?._id));
+
+      const list = document.getElementById('productsList');
+      if (!products.length) {
+        list.innerHTML = '<div class="col-12"><p>No products available.</p></div>';
+        return;
+      }
+      list.innerHTML = '';
+      products.forEach((product, idx) => {
+        setTimeout(() => {
+          const card = document.createElement('div');
+          // code-2
+          //card.className = 'col-md-4 fadeIn';
+          card.className = 'col-12 col-md-6 col-xl-4 fadeIn';
+          const productOwnerId = product.createdBy?._id || product.createdBy || '';
+          let buttonHtml = '';
+          if (user && (user.id === productOwnerId || user._id === productOwnerId)) {
+            buttonHtml = `<button class="btn btn-secondary btn-anim w-100" disabled title="You own this item">Your Item</button>`;
+          } else if (product.status !== 'available') {
+            buttonHtml = `<button class="btn btn-secondary btn-anim w-100" disabled>Unavailable</button>`;
+          } else if (requestedProductIds.has(product._id)) {
+            buttonHtml = `<button class="btn btn-info btn-anim w-100" disabled><i class="fa fa-check-circle me-2"></i>Requested</button>`;
+          } else {
+            buttonHtml = `<button class="btn btn-primary btn-anim w-100" onclick="requestProduct('${product._id}', this)"><i class="fa fa-paper-plane me-2"></i>Request to Buy/Borrow</button>`;
+          }
+          card.innerHTML = `
+            <div class="card product-card">
+              <img src="${product.image || 'assets/Not_Found.png'}" onerror="this.onerror=null;this.src='assets/Not_Found.png';" class="card-img-top product-img" alt="Product" style="cursor:pointer;" onclick="showProductImageModal('${(product.image || 'assets/Not_Found.png').replace(/'/g, '\'')}', event)" />
+              <div class="card-body">
+                <h5 class="card-title" style="font-size:1.2rem;font-weight:600;color:#4a6fa5;">${product.name}</h5>
+                <p class="card-text mb-2"><b>Description:</b> ${product.description && product.description.trim() !== '' ? product.description : 'No description available'}</p>
+                <p class="card-text mb-2">
+                  <span class="me-2"><i class="fa fa-tag me-1"></i><b>Price:</b> ${product.price ? '₹' + product.price : 'N/A'}</span><br/>
+                  <span><i class="fa fa-star me-1"></i><b>Quality:</b> ${product.quality || 'N/A'}</span>
+                </p>
+                ${buttonHtml}
+              </div>
+            </div>
+          `;
+          list.appendChild(card);
+        }, idx * 80);
+      });
+    }
+
+    // Request a product
+    window.requestProduct = async function(productId, btn) {
+      // Prevent duplicate requests (safeguard)
+      const resCheck = await fetch(`http://localhost:5000/api/myrequests/${user.id}`);
+      const myRequests = await resCheck.json();
+      if (myRequests.some(r => r.product && r.product._id === productId)) {
+        showHotToast('You have already requested this product.', 'danger');
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
+      
+      const res = await fetch('http://localhost:5000/api/requests', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ productId, studentId: user.id })
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        showHotToast('Request sent successfully!', 'success');
+        // Refresh both sections to update UI states
+        loadProducts();
+        loadMyRequests();
+        // Log borrow activity
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user) {
+          await fetch('http://localhost:5000/api/user-activity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.id || user._id, productId, actionType: 'borrow' })
+          });
+        }
+      } else {
+        showHotToast(data.error || 'Failed to send request.', 'danger');
+        // Re-enable button on failure
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-paper-plane me-2"></i>Request to Buy/Borrow';
+      }
+    };
+
+    // Fetch and display student's requests
+    async function loadMyRequests() {
+      const res = await fetch(`http://localhost:5000/api/myrequests/${user.id}`);
+      const requests = await res.json();
+      // Fetch user's returned products
+      let returnedProductIds = [];
+      try {
+        const retRes = await fetch('http://localhost:5000/api/returns');
+        const returns = await retRes.json();
+        returnedProductIds = returns.filter(r => (r.student?._id === user.id || r.student === user.id)).map(r => r.product?._id || r.product);
+      } catch {}
+      // Fetch wallet points
+      let walletPoints = 0;
+      try {
+        const walletRes = await fetch(`http://localhost:5000/api/wallet/${user.id}`);
+        const walletData = await walletRes.json();
+        walletPoints = walletData.total || 0;
+      } catch {}
+      const cardsContainer = document.getElementById('myRequestsCards');
+      // --- Celebration Animation Logic Start ---
+      // Get celebrated request IDs from localStorage
+      let celebratedIds = JSON.parse(localStorage.getItem('celebratedAcceptedRequests') || '[]');
+      // Find newly accepted requests that haven't been celebrated
+      const newAccepted = requests.find(req => req.status === 'accepted' && req.product && !celebratedIds.includes(req._id));
+      if (newAccepted) {
+        showCelebrationAnimation(newAccepted.product.name, newAccepted.product.image || 'assets/Not_Found.png');
+        celebratedIds.push(newAccepted._id);
+        localStorage.setItem('celebratedAcceptedRequests', JSON.stringify(celebratedIds));
+      }
+      // --- Celebration Animation Logic End ---
+      if (!requests.length) {
+        cardsContainer.innerHTML = '<div class="text-center text-muted py-4">No requests yet.</div>';
+        return;
+      }
+      cardsContainer.innerHTML = '';
+      requests.forEach((req, idx) => {
+        setTimeout(() => {
+          // Extract lat/lng from deliveryLocation if present
+          let lat = null, lng = null;
+          if (req.deliveryLocation && req.deliveryLocation.startsWith('Lat:')) {
+            const match = req.deliveryLocation.match(/Lat:\s*([\d.-]+),\s*Lng:\s*([\d.-]+)/);
+            if (match) { lat = match[1]; lng = match[2]; }
+          }
+          // Generate a unique id for the map button
+          const mapBtnId = `viewMapBtn_${idx}`;
+          // Check if returned
+          const isReturned = req.product && returnedProductIds.includes(req.product._id);
+          // Card HTML
+          const card = document.createElement('div');
+          card.className = 'request-card';
+          card.innerHTML = `
+            <div style="position:relative;">
+              <img src="${req.product?.image || 'assets/Not_Found.png'}" class="request-card-img" alt="Product" onclick="showProductImageModal('${(req.product?.image || 'assets/Not_Found.png').replace(/'/g, '\'')}', event)">
+              ${isReturned ? `<div class='returned-stamp'><span>RETURNED</span></div>` : ''}
+              ${(req.status === 'accepted' && (req.boughtFromWallet || req.product?.price > 0)) ? `<div class='borrowed-stamp-rect'><span>BORROWED</span></div>` : ''}
+            </div>
+            <div class="request-card-content">
+              <div class="request-card-title">${req.product?.name || ''}</div>
+              <div class="request-card-status">${req.status.charAt(0).toUpperCase() + req.status.slice(1)}
+                <div class="request-card-badges mt-1">
+                  ${req.status === 'accepted' && req.contactNumber ? `<span class='badge badge-info'>Contact: <b>${req.contactNumber}</b></span>` : ''}
+                  ${req.status === 'accepted' && req.contactEmail ? `<span class='badge bg-secondary'>Email: <b>${req.contactEmail}</b></span>` : ''}
+                  ${req.status === 'accepted' && req.deliveryDate ? `<span class='badge bg-success'>Exchange Date: <b>${new Date(req.deliveryDate).toLocaleDateString()}</b></span>` : ''}
+                  ${req.status === 'accepted' && req.deliveryLocation ? `<span class='badge bg-primary d-inline-flex align-items-center'>Location: <b>${req.deliveryLocation}</b></span>` : ''}
+                </div>
+              </div>
+            </div>
+            <div class="request-card-action">
+              ${req.deliveryLocation ? `<button class='btn btn-outline-primary btn-sm request-card-map-btn' id='${mapBtnId}'><i class="fa fa-map-marker-alt"></i> View Map</button>` : ''}
+              ${
+                req.status === 'accepted' &&
+                req.product?.returnDeadline &&
+                (!req.product?.price || req.product?.price == 0)
+                  ? `<button class='btn btn-outline-success btn-sm return-product-btn' ${isReturned ? 'disabled' : ''} onclick="${isReturned ? '' : `openReturnModal('${req.product?._id}', '${req.product?.returnDeadline}')`}">${isReturned ? '<i class=\'fa fa-check-circle\'></i> Returned' : '<i class=\'fa fa-undo\'></i> Return Product'}</button>`
+                  : ''
+              }
+              ${
+                req.status === 'accepted' &&
+                req.product?.price > 0 &&
+                !req.boughtFromWallet &&
+                walletPoints >= req.product.price * 10
+                  ? `<button class='btn btn-warning btn-sm buy-wallet-btn' onclick="buyFromWallet('${req._id}', ${walletPoints}, ${req.product.price}, this)"><i class='fa fa-coins me-1'></i>Buy from Wallet Points</button>`
+                  : req.boughtFromWallet ? `<span class='badge bg-success fs-6'>Buy from Digital Wallet</span>` : ''
+              }
+            </div>
+          `;
+          cardsContainer.appendChild(card);
+          // Attach event handler after card is rendered
+          setTimeout(() => {
+            const btn = document.getElementById(mapBtnId);
+            if (btn) {
+              btn.onclick = async function() {
+                let mapLat = lat, mapLng = lng;
+                if (!mapLat || !mapLng) {
+                  // Geocode the address
+                  const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(req.deliveryLocation)}&limit=1`);
+                  const data = await res.json();
+                  if (data.length) {
+                    mapLat = parseFloat(data[0].lat);
+                    mapLng = parseFloat(data[0].lon);
+                  } else {
+                    alert('Could not find coordinates for this address.');
+                    return;
+                  }
+                }
+                openMapModal(mapLat, mapLng, req.deliveryLocation);
+              };
+            }
+          }, 10);
+        }, idx * 60);
+      });
+      // Show penalty/ban status
+      const penaltyDiv = document.getElementById('penaltyStatus');
+      try {
+        const penaltyRes = await fetch(`http://localhost:5000/api/penalty-status/${user.id}`);
+        const penaltyData = await penaltyRes.json();
+        let banMsg = '';
+        if (penaltyData.banUntil && new Date(penaltyData.banUntil) > new Date()) {
+          banMsg = `<div class='alert alert-danger mb-2'><b>You are banned from making new requests until ${new Date(penaltyData.banUntil).toLocaleString()} due to late returns.</b></div>`;
+          // Disable all request buttons
+          setTimeout(() => {
+            document.querySelectorAll('.btn-primary, .btn-anim').forEach(btn => {
+              if (btn.textContent.includes('Request')) btn.disabled = true;
+            });
+          }, 500);
+        }
+        penaltyDiv.innerHTML = `
+          <div class='d-flex flex-wrap gap-3 align-items-center'>
+            <span class='badge bg-danger fs-6'>Total Penalty: ₹${penaltyData.totalPenalty?.toFixed(2) || 0}</span>
+            <span class='badge bg-warning text-dark fs-6'>Total Penalty %: ${(penaltyData.totalPercent || 0).toFixed(1)}%</span>
+            <span class='badge bg-info text-dark fs-6'>Total Strikes: ${penaltyData.totalStrikes || 0}</span>
+            ${banMsg}
+          </div>
+        `;
+      } catch {}
+    }
+
+    // Fetch and display recommendations
+    async function loadRecommendations() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) return;
+      const container = document.getElementById('recommendedCards');
+      container.innerHTML = '<div class="col-12"><div class="skeleton skeleton-box w-100"></div></div>';
+      try {
+        const res = await fetch(`http://localhost:5000/api/recommendations/${user.id || user._id}`);
+        const recs = await res.json();
+        if (!recs.length) {
+          container.innerHTML = '<div class="col-12 text-muted">No recommendations yet.</div>';
+          return;
+        }
+        container.innerHTML = '';
+        recs.forEach(product => {
+          const card = document.createElement('div');
+          //code-3
+          //card.className = 'col-md-4 mb-4';
+          card.className = 'col-12 col-sm-6 col-lg-4 mb-4';
+          card.innerHTML = `
+            <div class="card h-100">
+              <img src="${product.image || 'assets/Not_Found.png'}" onerror="this.onerror=null;this.src='assets/Not_Found.png';"  class="card-img-top product-img" alt="Product" style="height:160px;object-fit:cover;cursor:pointer;" onclick="logViewAndShowProductImage('${product._id}','${product.image || 'assets/Not_Found.png'}')" />
+              <div class="card-body">
+                <h5 class="card-title">${product.name}</h5>
+                <p class="card-text mb-2">${product.description || ''}</p>
+                <p class="mb-2">
+                  <span class="me-2"><i class="fa fa-tag me-1"></i><b>Price:</b> ${product.price ? '₹' + product.price : 'N/A'}</span><br/>
+                  <span><i class="fa fa-star me-1"></i><b>Quality:</b> ${product.quality || 'N/A'}</span>
+                </p>
+                <button class="btn btn-primary w-100" onclick="requestProduct('${product._id}', this)"><i class="fa fa-paper-plane me-2"></i>Request</button>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch {
+        container.innerHTML = '<div class="col-12 text-danger">Failed to load recommendations.</div>';
+      }
+    }
+
+    // Log view activity and show product image modal
+    window.logViewAndShowProductImage = async function(productId, imgUrl) {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user) {
+        await fetch('http://localhost:5000/api/user-activity', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id || user._id, productId, actionType: 'view' })
+        });
+      }
+      showProductImageModal(imgUrl);
+    };
+
+    // Fetch and display wallet points
+    async function loadWalletPoints() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) return;
+      document.getElementById('walletUsername').textContent = user.name ? user.name.charAt(0).toUpperCase() + user.name.slice(1) : '';
+      document.getElementById('walletEmail').textContent = user.email || '';
+      const walletDiv = document.getElementById('walletPoints');
+      walletDiv.innerHTML = `
+        <span class="wallet-coin me-2">
+          <svg width="32" height="32" viewBox="0 0 32 32">
+            <defs>
+              <radialGradient id="coinGold" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#fffbe7"/>
+                <stop offset="60%" stop-color="#ffe082"/>
+                <stop offset="100%" stop-color="#ffb300"/>
+              </radialGradient>
+            </defs>
+            <circle cx="16" cy="16" r="14" fill="url(#coinGold)" stroke="#e6b800" stroke-width="2"/>
+            <circle cx="16" cy="16" r="9" fill="none" stroke="#fffde4" stroke-width="1.5"/>
+            <text x="16" y="22" text-anchor="middle" font-size="14" font-weight="bold" fill="#e6b800" font-family="Arial">₹</text>
+          </svg>
+        </span>
+        <span id="walletPointsValue">Loading...</span>
+      `;
+      try {
+        const res = await fetch(`http://localhost:5000/api/wallet/${user.id || user._id}`);
+        const data = await res.json();
+        walletDiv.innerHTML = `
+          <span class="wallet-coin me-2">
+            <svg width="32" height="32" viewBox="0 0 32 32">
+              <defs>
+                <radialGradient id="coinGold" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#fffbe7"/>
+                  <stop offset="60%" stop-color="#ffe082"/>
+                  <stop offset="100%" stop-color="#ffb300"/>
+                </radialGradient>
+              </defs>
+              <circle cx="16" cy="16" r="14" fill="url(#coinGold)" stroke="#e6b800" stroke-width="2"/>
+              <circle cx="16" cy="16" r="9" fill="none" stroke="#fffde4" stroke-width="1.5"/>
+              <text x="16" y="22" text-anchor="middle" font-size="14" font-weight="bold" fill="#e6b800" font-family="Arial">₹</text>
+            </svg>
+          </span>
+          <span id="walletPointsValue">${data.total || 0}</span>
+        `;
+      } catch {
+        walletDiv.innerHTML = `<span class="wallet-coin me-2">
+          <svg width="32" height="32" viewBox="0 0 32 32">
+            <defs>
+              <radialGradient id="coinGold" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#fffbe7"/>
+                <stop offset="60%" stop-color="#ffe082"/>
+                <stop offset="100%" stop-color="#ffb300"/>
+              </radialGradient>
+            </defs>
+            <circle cx="16" cy="16" r="14" fill="url(#coinGold)" stroke="#e6b800" stroke-width="2"/>
+            <circle cx="16" cy="16" r="9" fill="none" stroke="#fffde4" stroke-width="1.5"/>
+            <text x="16" y="22" text-anchor="middle" font-size="14" font-weight="bold" fill="#e6b800" font-family="Arial">₹</text>
+          </svg>
+        </span>
+        <span id="walletPointsValue">Failed</span>`;
+      }
+    }
+
+    // Initial load with shimmer
+    setTimeout(() => {
+      loadProducts();
+      loadMyRequests();
+      loadRecommendations();
+      loadWalletPoints();
+    }, 900);
+  </script>
+  <script>
+  // Global function for showing the image modal
+  window.showProductImageModal = function(imgUrl, event) {
+    if (event) event.stopPropagation();
+    const modalImg = document.getElementById('productImageModalImg');
+    modalImg.src = imgUrl;
+    const modal = new bootstrap.Modal(document.getElementById('productImageModal'));
+    modal.show();
+  };
+  </script>
+  <!-- Map Modal for Distance Calculation -->
+  <div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="mapModalLabel">View Delivery Location & Calculate Distance</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="distanceResult"></div>
+          <div class="mb-2">
+            <input type="text" id="startAddressInput" class="form-control" placeholder="Enter your starting address or leave blank to use your current location">
+            <button class="btn btn-outline-secondary mt-2" id="useCurrentLocationBtn"><i class="fa fa-location-arrow"></i> Use My Current Location</button>
+          </div>
+          <div id="mapContainer" style="height:400px;width:100%;border-radius:8px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.8.0/dist/geosearch.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-geosearch@3.8.0/dist/geosearch.umd.js"></script>
+  <script>
+    let mapModalMap, mapModalMarker, mapModalDeliveryMarker, mapModalLine;
+    window.openMapModal = function(lat, lng, deliveryLocation) {
+      const modal = new bootstrap.Modal(document.getElementById('mapModal'));
+      modal.show();
+      setTimeout(() => {
+        if (mapModalMap) {
+          mapModalMap.remove();
+          mapModalMap = null;
+        }
+        mapModalMap = L.map('mapContainer').setView([lat, lng], 16);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap'
+        }).addTo(mapModalMap);
+        if (mapModalDeliveryMarker) mapModalDeliveryMarker.remove();
+        mapModalDeliveryMarker = L.marker([lat, lng], { title: 'Delivery Location' }).addTo(mapModalMap).bindPopup('Delivery Location: ' + deliveryLocation).openPopup();
+        if (mapModalMarker) mapModalMarker.remove();
+        if (mapModalLine) mapModalLine.remove();
+        const distanceResult = document.getElementById('distanceResult');
+        distanceResult.innerHTML = '';
+        distanceResult.classList.remove('show');
+        document.getElementById('startAddressInput').value = '';
+      }, 300);
+      // Handler for using current location
+      document.getElementById('useCurrentLocationBtn').onclick = function() {
+        if (!navigator.geolocation) {
+          const distanceResult = document.getElementById('distanceResult');
+          distanceResult.innerHTML = '<span class="text-danger">Geolocation is not supported by your browser.</span>';
+          distanceResult.classList.add('show');
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const startLat = position.coords.latitude;
+          const startLng = position.coords.longitude;
+          showDistanceOnMap(startLat, startLng, lat, lng);
+        }, function() {
+          const distanceResult = document.getElementById('distanceResult');
+          distanceResult.innerHTML = '<span class="text-danger">Unable to retrieve your location.</span>';
+          distanceResult.classList.add('show');
+        });
+      };
+      // Handler for address input
+      document.getElementById('startAddressInput').onchange = async function() {
+        const address = this.value.trim();
+        if (!address) return;
+        // Geocode address
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`);
+        const data = await res.json();
+        if (data.length) {
+          const startLat = parseFloat(data[0].lat);
+          const startLng = parseFloat(data[0].lon);
+          showDistanceOnMap(startLat, startLng, lat, lng);
+        } else {
+          const distanceResult = document.getElementById('distanceResult');
+          distanceResult.innerHTML = '<span class="text-danger">Could not find that address.</span>';
+          distanceResult.classList.add('show');
+        }
+      };
+      function showDistanceOnMap(startLat, startLng, endLat, endLng) {
+        if (mapModalMarker) mapModalMarker.remove();
+        if (mapModalLine) mapModalLine.remove();
+        mapModalMarker = L.marker([startLat, startLng], { title: 'Your Start Location', icon: L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [32, 32], iconAnchor: [16, 32] }) }).addTo(mapModalMap).bindPopup('Your Start Location').openPopup();
+        mapModalLine = L.polyline([[startLat, startLng], [endLat, endLng]], { color: 'blue', weight: 3, opacity: 0.7 }).addTo(mapModalMap);
+        mapModalMap.fitBounds([[startLat, startLng], [endLat, endLng]], { padding: [40, 40] });
+        // Calculate distance (Haversine)
+        const R = 6371e3; // metres
+        const φ1 = startLat * Math.PI/180;
+        const φ2 = endLat * Math.PI/180;
+        const Δφ = (endLat-startLat) * Math.PI/180;
+        const Δλ = (endLng-startLng) * Math.PI/180;
+        const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const d = R * c;
+        const distanceResult = document.getElementById('distanceResult');
+        distanceResult.innerHTML = `<span>Distance: ${(d/1000).toFixed(2)} km</span>`;
+        setTimeout(() => distanceResult.classList.add('show'), 50);
+      }
+    };
+  </script>
+  <!-- Return Product Modal -->
+  <div class="modal fade" id="returnModal" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="returnModalLabel">Return Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p id="returnDeadlineText"></p>
+          <div class="mb-2">
+            <input type="text" id="returnLocationInput" class="form-control" placeholder="Enter return location or click on the map">
+          </div>
+          <div id="returnMapContainer" style="height:400px;width:100%;border-radius:8px;"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="confirmReturnBtn">Confirm Return</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Celebration Animation Modal -->
+  <div class="modal fade" id="celebrationModal" tabindex="-1" aria-labelledby="celebrationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center" style="background:rgba(255,255,255,0.97);border-radius:18px;box-shadow:0 8px 32px #4a6fa51a;">
+        <div class="modal-body p-4">
+          <div id="confettiCanvasContainer" style="position:relative;height:0;">
+            <canvas id="confettiCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
+          </div>
+          <img id="celebrationProductImg" src="" alt="Product" style="width:120px;height:90px;object-fit:cover;border-radius:12px;box-shadow:0 2px 12px #4a6fa51a;" />
+          <h4 class="mt-3 mb-2" id="celebrationProductName" style="color:#4a6fa5;font-weight:700;"></h4>
+          <p class="mb-0" style="font-size:1.1rem;">Your request has been <span class="text-success fw-bold">accepted!</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Simple confetti animation
+    function showCelebrationAnimation(productName, productImg) {
+      const modal = new bootstrap.Modal(document.getElementById('celebrationModal'));
+      document.getElementById('celebrationProductName').textContent = productName;
+      document.getElementById('celebrationProductImg').src = productImg;
+      // Show modal
+      modal.show();
+      // Confetti
+      setTimeout(() => {
+        launchConfetti();
+      }, 200);
+      // Hide after 3.5s
+      setTimeout(() => {
+        modal.hide();
+      }, 3500);
+    }
+    // Confetti logic
+    function launchConfetti() {
+      const canvas = document.getElementById('confettiCanvas');
+      const container = document.getElementById('confettiCanvasContainer');
+      container.style.height = '120px';
+      canvas.width = container.offsetWidth;
+      canvas.height = 120;
+      const ctx = canvas.getContext('2d');
+      const confettiCount = 80;
+      const confetti = [];
+      for (let i = 0; i < confettiCount; i++) {
+        confetti.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * -canvas.height,
+          r: 6 + Math.random() * 8,
+          d: 2 + Math.random() * 2,
+          color: `hsl(${Math.random()*360},90%,60%)`,
+          tilt: Math.random() * 10 - 5
+        });
+      }
+      let frame = 0;
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        confetti.forEach(c => {
+          ctx.beginPath();
+          ctx.ellipse(c.x, c.y, c.r, c.r/2, c.tilt, 0, 2 * Math.PI);
+          ctx.fillStyle = c.color;
+          ctx.fill();
+        });
+        update();
+        frame++;
+        if (frame < 60) requestAnimationFrame(draw);
+        else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          container.style.height = '0';
+        }
+      }
+      function update() {
+        confetti.forEach(c => {
+          c.y += c.d;
+          c.x += Math.sin(frame/10 + c.r);
+          c.tilt += Math.random() * 0.2 - 0.1;
+        });
+      }
+      draw();
+    }
+  </script>
+  <script>
+    let returnMap, returnMarker, searchControl;
+    
+    function openReturnModal(productId, returnDeadline) {
+      const modal = new bootstrap.Modal(document.getElementById('returnModal'));
+      const deadlineText = document.getElementById('returnDeadlineText');
+      
+      if (returnDeadline && returnDeadline !== 'null' && returnDeadline !== 'undefined') {
+        const deadline = new Date(returnDeadline);
+        if (!isNaN(deadline.getTime())) {
+          const now = new Date();
+          const diffTime = deadline - now;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          let deadlineInfo = `Exchange Date: <b>${deadline.toLocaleDateString()}</b>. `;
+          if (diffDays > 0) {
+            deadlineInfo += `You have ${diffDays} days left.`;
+          } else if (diffDays === 0) {
+            deadlineInfo += `Today is the last day to return.`;
+          } else {
+            deadlineInfo += `<span class="text-danger">This item is overdue by ${-diffDays} days.</span>`;
+          }
+          deadlineText.innerHTML = deadlineInfo;
+        } else {
+          deadlineText.innerHTML = "No exchange date specified.";
+        }
+      } else {
+        deadlineText.innerHTML = "No exchange date specified.";
+      }
+      
+      modal.show();
+      
+      setTimeout(() => {
+        if (returnMap) {
+          returnMap.remove();
+        }
+        returnMap = L.map('returnMapContainer').setView([20.5937, 78.9629], 5); // Default view of India
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(returnMap);
+        
+        if (returnMarker) {
+            returnMarker = null;
+        }
+
+        const provider = new window.GeoSearch.OpenStreetMapProvider();
+        if (searchControl) {
+            returnMap.removeControl(searchControl);
+        }
+        searchControl = new window.GeoSearch.GeoSearchControl({
+            provider: provider,
+            style: 'bar',
+            showMarker: false,
+        });
+        returnMap.addControl(searchControl);
+
+        returnMap.on('geosearch/showlocation', function(e) {
+            const { lat, lng } = e.location;
+            if (returnMarker) {
+                returnMarker.setLatLng([lat, lng]);
+            } else {
+                returnMarker = L.marker([lat, lng]).addTo(returnMap);
+            }
+            returnMap.setView([lat, lng], 16);
+            document.getElementById('returnLocationInput').value = e.location.label;
+        });
+
+        returnMap.on('click', async function(e) {
+          const { lat, lng } = e.latlng;
+          // Reverse geocode to get address
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+            const data = await res.json();
+            if (data && data.display_name) {
+              document.getElementById('returnLocationInput').value = data.display_name;
+            } else {
+              document.getElementById('returnLocationInput').value = `Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`;
+            }
+          } catch (err) {
+            document.getElementById('returnLocationInput').value = `Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`;
+          }
+          if (returnMarker) {
+            returnMarker.setLatLng(e.latlng);
+          } else {
+            returnMarker = L.marker(e.latlng).addTo(returnMap);
+          }
+        });
+      }, 300);
+
+      document.getElementById('confirmReturnBtn').onclick = async function() {
+        const returnLocation = document.getElementById('returnLocationInput').value;
+        if (!returnLocation) {
+          alert('Please select a return location.');
+          return;
+        }
+        // Save return in backend
+        try {
+          const res = await fetch('http://localhost:5000/api/returns', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              productId: productId,
+              studentId: user.id || user._id,
+              returnLocation: returnLocation
+            })
+          });
+          if (res.ok) {
+            modal.hide();
+            showHotToast('Return confirmed!', 'success');
+          } else {
+            alert('Failed to save return.');
+          }
+        } catch (err) {
+          alert('Failed to save return.');
+        }
+      };
+    }
+
+
+
+
+
+    
+  </script>
+  <!-- Buy from Wallet Points Modal -->
+  <div class="modal fade" id="buyFromWalletModal" tabindex="-1" aria-labelledby="buyFromWalletModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="buyFromWalletModalLabel">Buy from Wallet Points</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>You have <strong id="availableWalletPoints">0</strong> points. The item costs <strong id="itemPrice">₹0</strong>. You need <strong id="pointsNeeded">0</strong> points to buy this item.</p>
+          <div class="d-flex justify-content-center mt-3">
+            <button class="btn btn-primary me-2" id="confirmBuyBtn">Confirm Purchase</button>
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Buy from Wallet Points handler
+    window.buyFromWallet = function(requestId, walletPoints, productPrice, btn) {
+      const pointsNeeded = productPrice * 10;
+      document.getElementById('availableWalletPoints').textContent = walletPoints;
+      document.getElementById('itemPrice').textContent = `₹${productPrice}`;
+      document.getElementById('pointsNeeded').textContent = pointsNeeded;
+      const modal = new bootstrap.Modal(document.getElementById('buyFromWalletModal'));
+      modal.show();
+      document.getElementById('confirmBuyBtn').onclick = async function() {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+        const user = JSON.parse(localStorage.getItem('user'));
+        try {
+          const res = await fetch('http://localhost:5000/api/wallet/redeem', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.id || user._id, requestId })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            showHotToast('Purchase successful!', 'success');
+            modal.hide();
+            loadMyRequests(); // Refresh requests to update boughtFromWallet status
+            loadWalletPoints(); // Refresh wallet points
+          } else {
+            showHotToast(data.error || 'Failed to buy from wallet.', 'danger');
+            btn.disabled = false;
+            btn.innerHTML = `<i class='fa fa-coins me-1'></i>Buy from Wallet Points`;
+          }
+        } catch (err) {
+          showHotToast('Failed to buy from wallet.', 'danger');
+          btn.disabled = false;
+          btn.innerHTML = `<i class='fa fa-coins me-1'></i>Buy from Wallet Points`;
+        }
+      };
+    }
+  </script>
+</body>
+</html> 
