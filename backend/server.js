@@ -16,20 +16,40 @@ const Penalty = require("./models/Penalty");
 const UserActivity = require("./models/UserActivity");
 const SearchActivity = require("./models/SearchActivity");
 const WalletTransaction = require("./models/WalletTransaction");
-
+// ...existing code...
 const app = express();
 
 // Serve static files from the project root
 const path = require("path");
 app.use(express.static(path.join(__dirname, "../")));
-// Update CORS configuration to allow requests from 'https://peer-to-peer-share-resources.vercel.app'
+
+// --- FIXED CORS CONFIGURATION ---
 app.use(cors({
-  origin: [
-    'https://peer-to-peer-share-resources.vercel.app',
-    'http://localhost:3000', // for local dev
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    // Allow all vercel.app subdomains and localhost:3000
+    if (
+      origin.endsWith('.vercel.app') ||
+      origin === 'http://localhost:3000'
+    ) {
+      return callback(null, true);
+    }
+    // Allow specific deployed domains
+    const allowedOrigins = [
+      'https://peer-to-peer-share-resources.vercel.app',
+      'https://peer-to-peer-share-resources-qyoi.vercel.app',
+      'https://peer-to-peer-share-resources-qyoi-1whrxzvzv.vercel.app'
+    ];
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    // Otherwise, block
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
+
 app.use(express.json({ limit: "10mb" })); // Increase payload limit to 10MB
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
