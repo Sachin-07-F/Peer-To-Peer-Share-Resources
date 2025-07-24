@@ -1382,14 +1382,14 @@
               return;
             }
             // Prevent duplicate requests
-            const resCheck = await fetch(`http://localhost:5000/api/myrequests/${user.id}`);
+            const resCheck = await fetch(`https://peer-to-peer-share-resources.onrender.com/api/myrequests/${user.id}`);
             const myRequests = await resCheck.json();
             if (myRequests.some(r => r.product && r.product._id === productId)) {
               showNotification("You have already requested this product.");
               return;
             }
             // Send request
-            const res = await fetch("http://localhost:5000/api/requests", {
+            const res = await fetch("https://peer-to-peer-share-resources.onrender.com/api/requests", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ productId, studentId: user.id })
@@ -1564,19 +1564,19 @@
       // --- Dashboard Stats ---
       function updateDashboardStats() {
         // Active Students
-        fetch('http://localhost:5000/api/users/count')
+        fetch('https://peer-to-peer-share-resources.onrender.com/api/users/count')
           .then(res => res.json())
           .then(data => {
             document.querySelector('#stat1 .stat-number').textContent = data.count || 0;
           });
         // Resources Shared
-        fetch('http://localhost:5000/api/requests/accepted-count')
+        fetch('https://peer-to-peer-share-resources.onrender.com/api/requests/accepted-count')
           .then(res => res.json())
           .then(data => {
             document.querySelector('#stat2 .stat-number').textContent = data.count || 0;
           });
         // Satisfaction Rate
-        fetch('http://localhost:5000/api/feedback')
+        fetch('https://peer-to-peer-share-resources.onrender.com/api/feedback')
           .then(res => res.json())
           .then(feedbacks => {
             if (!feedbacks.length) {
@@ -1626,7 +1626,7 @@
         });
       }
       // Fetch feedback and render testimonials
-      fetch('http://localhost:5000/api/feedback')
+      fetch('https://peer-to-peer-share-resources.onrender.com/api/feedback')
         .then(res => res.json())
         .then(feedbacks => renderFeedbackTestimonials(feedbacks));
 
@@ -1674,7 +1674,7 @@
         attachChatBtnHandlers();
       }
       // Fetch products from backend
-      fetch('http://localhost:5000/api/products')
+      fetch('https://peer-to-peer-share-resources.onrender.com/api/products')
         .then(res => res.json())
         .then(products => renderFeaturedResources(products))
         .catch(() => {
@@ -1738,7 +1738,7 @@
           socket.emit('send_message', msg);
         }
         // Save to backend
-        fetch('http://localhost:5000/api/messages', {
+        fetch('https://peer-to-peer-share-resources.onrender.com/api/messages', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(msg)

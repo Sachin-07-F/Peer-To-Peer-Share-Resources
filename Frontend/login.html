@@ -509,7 +509,7 @@
       setButtonLoading(btn, true);
       const email = this.email.value;
       const password = this.password.value;
-      const res = await fetch('http://localhost:5000/api/login', {
+      const res = await fetch('https://peer-to-peer-share-resources.onrender.com/api/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ email, password, role: 'admin' })
@@ -530,7 +530,7 @@
       setButtonLoading(btn, true);
       const email = this.email.value;
       const password = this.password.value;
-      const res = await fetch('http://localhost:5000/api/login', {
+      const res = await fetch('https://peer-to-peer-share-resources.onrender.com/api/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ email, password, role: 'student' })
@@ -552,7 +552,7 @@
       const name = this.name.value;
       const email = this.email.value;
       const password = this.password.value;
-      const res = await fetch('http://localhost:5000/api/signup', {
+      const res = await fetch('https://peer-to-peer-share-resources.onrender.com/api/signup', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ name, email, password })

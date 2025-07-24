@@ -628,7 +628,7 @@
         // Load user's requests (items they're borrowing)
         async function loadMyRequests() {
             try {
-                const response = await fetch(`http://localhost:5000/api/myrequests/${currentUser.id}`);
+                const response = await fetch(`https://peer-to-peer-share-resources.onrender.com/api/myrequests/${currentUser.id}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch requests');
                 }
@@ -692,7 +692,7 @@
         // Load pending requests (for items the user is lending)
         async function loadPendingRequests() {
             try {
-                const response = await fetch(`http://localhost:5000/api/requests-for-my-products/${currentUser.id}`);
+                const response = await fetch(`https://peer-to-peer-share-resources.onrender.com/api/requests-for-my-products/${currentUser.id}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch borrow requests');
                 }
@@ -764,7 +764,7 @@
         // Load items the user is lending
         async function loadLendingItems() {
             try {
-                const response = await fetch(`http://localhost:5000/api/myproducts/${currentUser.id}`);
+                const response = await fetch(`https://peer-to-peer-share-resources.onrender.com/api/myproducts/${currentUser.id}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch lending items');
                 }
@@ -899,7 +899,7 @@
             if (!confirm('Are you sure you want to accept this borrow request?')) return;
 
             try {
-                const response = await fetch(`http://localhost:5000/api/requests/${requestId}/decision`, {
+                const response = await fetch(`https://peer-to-peer-share-resources.onrender.com/api/requests/${requestId}/decision`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -928,7 +928,7 @@
             if (!confirm('Are you sure you want to reject this borrow request?')) return;
 
             try {
-                const response = await fetch(`http://localhost:5000/api/requests/${requestId}/decision`, {
+                const response = await fetch(`https://peer-to-peer-share-resources.onrender.com/api/requests/${requestId}/decision`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

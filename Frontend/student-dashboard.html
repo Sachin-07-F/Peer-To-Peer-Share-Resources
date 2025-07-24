@@ -889,11 +889,11 @@ body.dark-mode .toast {
 
     // Fetch and display products
     async function loadProducts() {
-      const res = await fetch('http://localhost:5000/api/products');
+      const res = await fetch('https://peer-to-peer-share-resources.onrender.com/api/products');
       const products = await res.json();
       
       // Fetch student's requests to disable already requested items
-      const myRequestsRes = await fetch(`http://localhost:5000/api/myrequests/${user.id}`);
+      const myRequestsRes = await fetch(`https://peer-to-peer-share-resources.onrender.com/api/myrequests/${user.id}`);
       const myRequests = await myRequestsRes.json();
       const requestedProductIds = new Set(myRequests.map(r => r.product?._id));
 
@@ -942,7 +942,7 @@ body.dark-mode .toast {
     // Request a product
     window.requestProduct = async function(productId, btn) {
       // Prevent duplicate requests (safeguard)
-      const resCheck = await fetch(`http://localhost:5000/api/myrequests/${user.id}`);
+      const resCheck = await fetch(`https://peer-to-peer-share-resources.onrender.com/api/myrequests/${user.id}`);
       const myRequests = await resCheck.json();
       if (myRequests.some(r => r.product && r.product._id === productId)) {
         showHotToast('You have already requested this product.', 'danger');
@@ -952,7 +952,7 @@ body.dark-mode .toast {
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
       
-      const res = await fetch('http://localhost:5000/api/requests', {
+      const res = await fetch('https://peer-to-peer-share-resources.onrender.com/api/requests', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ productId, studentId: user.id })
@@ -968,7 +968,7 @@ body.dark-mode .toast {
         // Log borrow activity
         const user = JSON.parse(localStorage.getItem('user'));
         if (user) {
-          await fetch('http://localhost:5000/api/user-activity', {
+          await fetch('https://peer-to-peer-share-resources.onrender.com/api/user-activity', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: user.id || user._id, productId, actionType: 'borrow' })
@@ -984,19 +984,19 @@ body.dark-mode .toast {
 
     // Fetch and display student's requests
     async function loadMyRequests() {
-      const res = await fetch(`http://localhost:5000/api/myrequests/${user.id}`);
+      const res = await fetch(`https://peer-to-peer-share-resources.onrender.com/api/myrequests/${user.id}`);
       const requests = await res.json();
       // Fetch user's returned products
       let returnedProductIds = [];
       try {
-        const retRes = await fetch('http://localhost:5000/api/returns');
+        const retRes = await fetch('https://peer-to-peer-share-resources.onrender.com/api/returns');
         const returns = await retRes.json();
         returnedProductIds = returns.filter(r => (r.student?._id === user.id || r.student === user.id)).map(r => r.product?._id || r.product);
       } catch {}
       // Fetch wallet points
       let walletPoints = 0;
       try {
-        const walletRes = await fetch(`http://localhost:5000/api/wallet/${user.id}`);
+        const walletRes = await fetch(`https://peer-to-peer-share-resources.onrender.com/api/wallet/${user.id}`);
         const walletData = await walletRes.json();
         walletPoints = walletData.total || 0;
       } catch {}
@@ -1096,7 +1096,7 @@ body.dark-mode .toast {
       // Show penalty/ban status
       const penaltyDiv = document.getElementById('penaltyStatus');
       try {
-        const penaltyRes = await fetch(`http://localhost:5000/api/penalty-status/${user.id}`);
+        const penaltyRes = await fetch(`https://peer-to-peer-share-resources.onrender.com/api/penalty-status/${user.id}`);
         const penaltyData = await penaltyRes.json();
         let banMsg = '';
         if (penaltyData.banUntil && new Date(penaltyData.banUntil) > new Date()) {
@@ -1126,7 +1126,7 @@ body.dark-mode .toast {
       const container = document.getElementById('recommendedCards');
       container.innerHTML = '<div class="col-12"><div class="skeleton skeleton-box w-100"></div></div>';
       try {
-        const res = await fetch(`http://localhost:5000/api/recommendations/${user.id || user._id}`);
+        const res = await fetch(`https://peer-to-peer-share-resources.onrender.com/api/recommendations/${user.id || user._id}`);
         const recs = await res.json();
         if (!recs.length) {
           container.innerHTML = '<div class="col-12 text-muted">No recommendations yet.</div>';
@@ -1163,7 +1163,7 @@ body.dark-mode .toast {
     window.logViewAndShowProductImage = async function(productId, imgUrl) {
       const user = JSON.parse(localStorage.getItem('user'));
       if (user) {
-        await fetch('http://localhost:5000/api/user-activity', {
+        await fetch('https://peer-to-peer-share-resources.onrender.com/api/user-activity', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: user.id || user._id, productId, actionType: 'view' })
@@ -1197,7 +1197,7 @@ body.dark-mode .toast {
         <span id="walletPointsValue">Loading...</span>
       `;
       try {
-        const res = await fetch(`http://localhost:5000/api/wallet/${user.id || user._id}`);
+        const res = await fetch(`https://peer-to-peer-share-resources.onrender.com/api/wallet/${user.id || user._id}`);
         const data = await res.json();
         walletDiv.innerHTML = `
           <span class="wallet-coin me-2">
@@ -1552,7 +1552,7 @@ body.dark-mode .toast {
         }
         // Save return in backend
         try {
-          const res = await fetch('http://localhost:5000/api/returns', {
+          const res = await fetch('https://peer-to-peer-share-resources.onrender.com/api/returns', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1611,7 +1611,7 @@ body.dark-mode .toast {
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
         const user = JSON.parse(localStorage.getItem('user'));
         try {
-          const res = await fetch('http://localhost:5000/api/wallet/redeem', {
+          const res = await fetch('https://peer-to-peer-share-resources.onrender.com/api/wallet/redeem', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: user.id || user._id, requestId })

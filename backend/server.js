@@ -22,7 +22,14 @@ const app = express();
 // Serve static files from the project root
 const path = require("path");
 app.use(express.static(path.join(__dirname, "../")));
-app.use(cors());
+// Update CORS configuration to allow requests from 'https://peer-to-peer-share-resources.vercel.app'
+app.use(cors({
+  origin: [
+    'https://peer-to-peer-share-resources.vercel.app',
+    'http://localhost:3000', // for local dev
+  ],
+  credentials: true
+}));
 app.use(express.json({ limit: "10mb" })); // Increase payload limit to 10MB
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
