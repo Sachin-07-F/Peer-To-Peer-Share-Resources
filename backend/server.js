@@ -1157,9 +1157,22 @@ app.get("/api/user-status/:userId", (req, res) => {
   res.json({ online, lastSeen: last });
 });
 
-server.listen(5000, () => {
-  console.log('Server running on http://localhost:5000');
-});
+// server.listen(5000, () => {
+//   console.log('Server running on http://localhost:5000');
+// });
+
+// Replace your current server listening code with this:
+const PORT = process.env.PORT || 5000;  // Use Vercel's PORT or default to 5000 locally
+
+// Only create server when not in Vercel environment
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+// This should be the last line in your file
+module.exports = app;
 
 
 module.exports = app;
