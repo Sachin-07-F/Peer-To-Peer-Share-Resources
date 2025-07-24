@@ -1157,8 +1157,10 @@ app.get("/api/user-status/:userId", (req, res) => {
   res.json({ online, lastSeen: last });
 });
 
-server.listen(5000, () => {
-  console.log('Server running on http://localhost:5000');
-});
+// server.listen(5000, () => {
+//   console.log('Server running on http://localhost:5000');
+// });
 
+
+module.exports = app;
 
