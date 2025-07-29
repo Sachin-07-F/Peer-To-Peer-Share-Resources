@@ -1,16 +1,22 @@
 {
-  "version": 2,
-  "routes": [
+  "headers": [
     {
-      "src": "/(.*\\.(js|css))",
-      "headers": {
-        "Content-Type": "application/javascript; charset=utf-8",
-        "Cache-Control": "public, max-age=31536000, immutable"
-      }
+      "source": "/(.*).html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, must-revalidate"
+        }
+      ]
     },
     {
-      "src": "/.*",
-      "dest": "/index.html"
+      "source": "/router.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     }
   ]
 }
