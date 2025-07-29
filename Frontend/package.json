@@ -2,7 +2,7 @@
   "scripts": {
     "build": "node build.js",
     "start": "serve public",
-    "deploy": "npm run build && vercel --prod"
+    "dev": "npm run build && npm start"
   },
   "dependencies": {
     "dotenv": "^16.6.1",
