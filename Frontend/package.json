@@ -1,5 +1,12 @@
 {
+  "scripts": {
+    "build": "node build.js",
+    "start": "serve public",
+    "deploy": "npm run build && vercel --prod"
+  },
   "dependencies": {
+    "dotenv": "^16.6.1",
+    "serve": "^14.0.1",
     "socket.io": "^4.8.1"
   }
 }

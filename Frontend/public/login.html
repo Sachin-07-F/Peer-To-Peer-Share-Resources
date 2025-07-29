@@ -205,6 +205,7 @@
       color: #f0f4f8;
     }
   </style>
+   <script src="/config.js"></script>
 </head>
 <body>
   <!-- Navigation -->
@@ -509,7 +510,7 @@
       setButtonLoading(btn, true);
       const email = this.email.value;
       const password = this.password.value;
-      const res = await fetch('https://peer-to-peer-share-resources.onrender.com/api/login', {
+      const res = await fetch(`${window.__env.API_BASE}/api/login`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ email, password, role: 'admin' })
@@ -530,7 +531,7 @@
       setButtonLoading(btn, true);
       const email = this.email.value;
       const password = this.password.value;
-      const res = await fetch('https://peer-to-peer-share-resources.onrender.com/api/login', {
+      const res = await fetch(`${window.__env.API_BASE}/api/login`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ email, password, role: 'student' })
@@ -552,7 +553,7 @@
       const name = this.name.value;
       const email = this.email.value;
       const password = this.password.value;
-      const res = await fetch('https://peer-to-peer-share-resources.onrender.com/api/signup', {
+      const res = await fetch(`${window.__env.API_BASE}/api/signup`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ name, email, password })

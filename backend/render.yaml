@@ -1,0 +1,17 @@
+# render.yaml
+services:
+  - type: web
+    name: peer-to-peer-backend
+    runtime: node
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MONGODB_URI
+        fromDatabase:
+          name: peershare-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 10000

@@ -337,6 +337,7 @@
             }
         }
     </style>
+     <script src="/config.js"></script>
 </head>
 
 <body>
@@ -950,7 +951,7 @@
             // Function to fetch products from backend
             async function fetchProducts() {
                 try {
-                    const response = await fetch('https://peer-to-peer-share-resources.onrender.com/api/products');
+                    const response = await fetch(`${window.__env.API_BASE}/api/products`);
                     if (!response.ok) {
                         throw new Error('Failed to fetch products');
                     }
@@ -959,7 +960,7 @@
                     let requestedProductIds = new Set();
                     const user = JSON.parse(localStorage.getItem('user'));
                     if (user) {
-                        const myRequestsRes = await fetch(`https://peer-to-peer-share-resources.onrender.com/api/myrequests/${user.id || user._id}`);
+                        const myRequestsRes = await fetch(`${window.__env.API_BASE}/api/myrequests/${user.id || user._id}`);
                         const myRequests = await myRequestsRes.json();
                         requestedProductIds = new Set(myRequests.map(r => r.product?._id));
                     }
@@ -1240,7 +1241,7 @@
             async function logSearchActivity(term) {
                 const user = JSON.parse(localStorage.getItem('user'));
                 if (user && term && term.trim()) {
-                    await fetch('https://peer-to-peer-share-resources.onrender.com/api/search-activity', {
+                    await fetch(`${window.__env.API_BASE}/api/search-activity`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ userId: user.id || user._id, searchTerm: term.trim() })
@@ -1272,7 +1273,7 @@
                 status: 'pending'
             };
 
-            fetch('https://peer-to-peer-share-resources.onrender.com/api/requests', {
+            fetch(`${window.__env.API_BASE}/api/requests`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1403,7 +1404,7 @@
                             rating: parseInt(document.getElementById('feedbackRating').value)
                         };
                         try {
-                            const response = await fetch('https://peer-to-peer-share-resources.onrender.com/api/feedback', {
+                            const response = await fetch(`${window.__env.API_BASE}/api/feedback`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(feedbackData)
@@ -1482,7 +1483,7 @@
                     const user = JSON.parse(localStorage.getItem('user'));
                     if (user && (user._id || user.id)) {
                         try {
-                            const res = await fetch('https://peer-to-peer-share-resources.onrender.com/api/emergency-need');
+                            const res = await fetch(`${window.__env.API_BASE}/api/emergency-need`);
                             const allRequests = await res.json();
                             const myRequests = allRequests.filter(r => (r.user?._id === user._id || r.user?._id === user.id || r.user === user._id || r.user === user.id));
                             if (myRequests.length > 0) {
@@ -1543,7 +1544,7 @@
                         return;
                     }
                     try {
-                        const response = await fetch('https://peer-to-peer-share-resources.onrender.com/api/emergency-need', {
+                        const response = await fetch(`${window.__env.API_BASE}/api/emergency-need`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -1577,7 +1578,7 @@
             const container = document.getElementById('otherEmergencyNeedsRow');
             if (!container) return;
             try {
-                const res = await fetch('https://peer-to-peer-share-resources.onrender.com/api/emergency-need');
+                const res = await fetch(`${window.__env.API_BASE}/api/emergency-need`);
                 const allRequests = await res.json();
                 // Exclude current user's requests
                 const others = allRequests.filter(r => !user || !(r.user?._id === user._id || r.user?._id === user.id || r.user === user._id || r.user === user.id));

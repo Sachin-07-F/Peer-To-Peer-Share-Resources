@@ -1,4 +1,5 @@
 const express = require("express");
+require('dotenv').config();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
@@ -76,7 +77,7 @@ app.use(cors({
 app.use(express.json({ limit: "10mb" })); // Increase payload limit to 10MB
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
-mongoose.connect('mongodb://localhost:27017/peershare', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/peershare', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });

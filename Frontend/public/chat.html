@@ -417,6 +417,7 @@ body.dark-mode hr {
       padding: 0 2px;
     }
   </style>
+   <script src="/config.js"></script>
 </head>
 <body>
   <!-- Navbar copied from index.html -->
@@ -489,7 +490,7 @@ body.dark-mode hr {
     let adminId = null;
 
     // Fetch admin user from backend
-    fetch('https://peer-to-peer-share-resources.onrender.com/api/admin-user')
+    fetch(`${window.__env.API_BASE}/api/admin-user`)
       .then(res => res.json())
       .then(admin => {
         if (!admin || !admin._id) {
@@ -501,7 +502,7 @@ body.dark-mode hr {
       });
 
     function startChat() {
-      const socket = io('https://peer-to-peer-share-resources.onrender.com');
+      const socket = io(`${window.__env.API_BASE}`);
       socket.emit('join', myId); // Only join the user's own room
 
       const messagesDiv = document.getElementById('messages');
@@ -512,7 +513,7 @@ body.dark-mode hr {
       // Mark all admin messages as seen by user
 
       // Fetch previous messages
-      fetch(`https://peer-to-peer-share-resources.onrender.com/api/chat/${myId}/${adminId}`)
+      fetch(`${window.__env.API_BASE}/api/chat/${myId}/${adminId}`)
         .then(res => res.json())
         .then(messages => {
           messages.forEach(msg => appendMsg(msg));
@@ -552,7 +553,7 @@ body.dark-mode hr {
       // Listen for real-time blue tick update when admin sees messages
       socket.on('messagesSeenByAdmin', ({ adminId: seenAdminId }) => {
         if (seenAdminId === adminId) {
-          fetch(`https://peer-to-peer-share-resources.onrender.com/api/chat/${myId}/${adminId}`)
+          fetch(`${window.__env.API_BASE}/api/chat/${myId}/${adminId}`)
             .then(res => res.json())
             .then(messages => {
               messagesDiv.innerHTML = '';
@@ -588,7 +589,7 @@ body.dark-mode hr {
 
     function markAdminMessagesSeenIfVisible() {
       if (document.visibilityState === 'visible') {
-        fetch(`https://peer-to-peer-share-resources.onrender.com/api/mark-admin-seen/${adminId}/${myId}`, { method: 'PATCH' });
+        fetch(`${window.__env.API_BASE}/api/mark-admin-seen/${adminId}/${myId}`, { method: 'PATCH' });
       }
     }
 
@@ -634,7 +635,7 @@ body.dark-mode hr {
 
     function fetchAdminStatus() {
       if (!adminId) return;
-      fetch('https://peer-to-peer-share-resources.onrender.com/api/user-status/' + adminId)
+      fetch(`${window.__env.API_BASE}/api/user-status/${adminId}`)
         .then(res => res.json())
         .then(data => {
           adminOnline = data.online;
@@ -647,7 +648,7 @@ body.dark-mode hr {
     let socketForStatus = null;
     function setupAdminStatusSocket() {
       if (socketForStatus) return;
-      socketForStatus = io('https://peer-to-peer-share-resources.onrender.com');
+      socketForStatus = io(`${window.__env.API_BASE}`);
       socketForStatus.emit('join', myId); // Join as user
       socketForStatus.on('userOnlineStatus', ({ userId, isOnline }) => {
         if (userId === adminId) {

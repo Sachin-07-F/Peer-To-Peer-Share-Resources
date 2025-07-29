@@ -1219,6 +1219,8 @@ body.dark-mode #locationSearchSuggestions li.active {
 }
 
   </style>
+
+   <script src="/config.js"></script>
 </head>
 <body>
   <!-- Place the toggle button as the first element inside the navbar for perfect centering -->
@@ -1699,7 +1701,7 @@ body.dark-mode #locationSearchSuggestions li.active {
       const category = this.category.value;
       const returnDeadline = this.returnDeadline.value;
       const adminId = user.id;
-      const res = await fetch('http://localhost:5000/api/products', {
+      const res = await fetch(`${window.__env.API_BASE}/api/products`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ name, price, quality, image, description, category, returnDeadline, adminId })
@@ -1717,7 +1719,7 @@ body.dark-mode #locationSearchSuggestions li.active {
 
     // Load All Products
     async function loadAllProducts() {
-      const res = await fetch('http://localhost:5000/api/products');
+      const res = await fetch(`${window.__env.API_BASE}/api/products`);
       const products = await res.json();
       const tbody = document.getElementById('allProductsTableBody');
       if (!products.length) {
@@ -1749,7 +1751,7 @@ body.dark-mode #locationSearchSuggestions li.active {
     };
     document.getElementById('confirmDeleteProductBtn').onclick = async function() {
       if (!productToDelete) return;
-      await fetch(`http://localhost:5000/api/products/${productToDelete}`, { method: 'DELETE' });
+      await fetch(`${window.__env.API_BASE}/api/products/${productToDelete}`, { method: 'DELETE' });
       loadAllProducts();
       loadDashboardStats();
       showHotToast('Product deleted', 'success');
@@ -1760,7 +1762,7 @@ body.dark-mode #locationSearchSuggestions li.active {
 
     // Load Orders (Requests)
     async function loadOrders() {
-      const res = await fetch('http://localhost:5000/api/requests');
+      const res = await fetch(`${window.__env.API_BASE}/api/requests`);
       const orders = await res.json();
       const tbody = document.getElementById('ordersTableBody');
       if (!orders.length) {
@@ -1802,7 +1804,7 @@ body.dark-mode #locationSearchSuggestions li.active {
         modal.show();
         return;
       }
-      await fetch(`http://localhost:5000/api/requests/${id}/decision`, {
+      await fetch(`${window.__env.API_BASE}/api/requests/${id}/decision`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ status })
@@ -1823,7 +1825,7 @@ body.dark-mode #locationSearchSuggestions li.active {
       const modalEl = document.getElementById('contactNumberModal');
       const modal = bootstrap.Modal.getInstance(modalEl);
       modal.hide();
-      await fetch(`http://localhost:5000/api/requests/${pendingAcceptOrderId}/decision`, {
+      await fetch(`${window.__env.API_BASE}/api/requests/${pendingAcceptOrderId}/decision`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ status: 'accepted', contactNumber, contactEmail, deliveryLocation, deliveryDate })
@@ -1955,11 +1957,11 @@ body.dark-mode #locationSearchSuggestions li.active {
     // Dashboard stats
     async function loadDashboardStats() {
       // Total products
-      const res1 = await fetch('http://localhost:5000/api/products');
+      const res1 = await fetch(`${window.__env.API_BASE}/api/products`);
       const products = await res1.json();
       document.getElementById('dashboardTotalProducts').textContent = products.length;
       // Total orders
-      const res2 = await fetch('http://localhost:5000/api/requests');
+      const res2 = await fetch(`${window.__env.API_BASE}/api/requests`);
       const orders = await res2.json();
       document.getElementById('dashboardTotalOrders').textContent = orders.length;
     }
@@ -1967,7 +1969,7 @@ body.dark-mode #locationSearchSuggestions li.active {
     // Load Lending Requests
     async function loadLendingRequests() {
       try {
-        const res = await fetch('http://localhost:5000/api/lending-requests');
+        const res = await fetch(`${window.__env.API_BASE}/api/lending-requests`);
         const lendingRequests = await res.json();
         const container = document.getElementById('lendingRequestsContainer');
         
@@ -2041,7 +2043,7 @@ body.dark-mode #locationSearchSuggestions li.active {
       if (!confirm('Are you sure you want to approve this lending request?')) return;
       
       try {
-        const response = await fetch(`http://localhost:5000/api/lending-requests/${id}/decision`, {
+        const response = await fetch(`${window.__env.API_BASE}/api/lending-requests/${id}/decision`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -2072,7 +2074,7 @@ body.dark-mode #locationSearchSuggestions li.active {
       if (reason === null) return; // User cancelled
       
       try {
-        const response = await fetch(`http://localhost:5000/api/lending-requests/${id}/decision`, {
+        const response = await fetch(`${window.__env.API_BASE}/api/lending-requests/${id}/decision`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -2346,7 +2348,7 @@ body.dark-mode #locationSearchSuggestions li.active {
 
     // Emergency Need Requests logic
     async function loadEmergencyNeedRequests() {
-      const res = await fetch('http://localhost:5000/api/emergency-need');
+      const res = await fetch(`${window.__env.API_BASE}/api/emergency-need`);
       const requests = await res.json();
       const tbody = document.getElementById('emergencyNeedRequestsTableBody');
       if (!requests.length) {
@@ -2386,7 +2388,7 @@ body.dark-mode #locationSearchSuggestions li.active {
     };
     document.getElementById('emergencyNeedConfirmBtn').onclick = async function() {
       if (!emergencyNeedAction.id || !emergencyNeedAction.status) return;
-      await fetch(`http://localhost:5000/api/emergency-need/${emergencyNeedAction.id}/decision`, {
+      await fetch(`${window.__env.API_BASE}/api/emergency-need/${emergencyNeedAction.id}/decision`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: emergencyNeedAction.status })
@@ -2406,7 +2408,7 @@ body.dark-mode #locationSearchSuggestions li.active {
       const container = document.getElementById('returnedOrdersRow');
       if (!container) return;
       try {
-        const res = await fetch('http://localhost:5000/api/returns');
+        const res = await fetch(`${window.__env.API_BASE}/api/returns`);
         const returns = await res.json();
         if (!returns.length) {
           container.innerHTML = `<div class='col-12'><div class='alert alert-info'><i class='fa fa-info-circle me-2'></i>No returned orders yet.</div></div>`;

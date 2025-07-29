@@ -523,6 +523,8 @@ body.dark-mode #backBtn {
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="/config.js"></script>
+
 </head>
 <body>
   <div id="divv" style="display:flex;align-items:center;justify-content:space-between; background: linear-gradient(120deg, #4a6fa5 60%, #4fc3f7 100%); position:relative; padding:0 24px 0 0;">
@@ -567,7 +569,7 @@ body.dark-mode #backBtn {
     const chatHeader = document.getElementById('chatHeader');
     // Removed emptyState usage
     let currentUser = null;
-    const API_BASE = 'https://peer-to-peer-share-resources.onrender.com';
+    const API_BASE = window.__env.API_BASE || "https://peer-to-peer-share-resources.onrender.com";
     let socket = null;
     let lastUserId = null;
     let allUsers = [];
